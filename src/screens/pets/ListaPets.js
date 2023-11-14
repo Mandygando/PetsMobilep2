@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View, Image } from 'react-native';
 import { Button, Card, Dialog, FAB, Portal, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 
@@ -72,17 +72,16 @@ export default function ListaPets({ navigation }) {
           <Card mode="outlined" style={styles.card}>
             <Card.Content style={styles.cardContent}>
               <View style={{ flex: 1 }}>
+                {item.imagem && (
+                  <Image source={{ uri: item.imagem }} style={styles.imagemCard} />
+                )}
                 <Text variant="titleMedium">{item?.nome}</Text>
                 <Text variant="bodyLarge">Raça: {item?.raca}</Text>
                 <Text variant="bodyLarge">Idade: {item?.idade} anos</Text>
               </View>
             </Card.Content>
             <Card.Actions>
-              <Button
-                onPress={() =>
-                  navigation.push('FormPets', { acao: editarPet, pet: item })
-                }
-              >
+              <Button onPress={() => navigation.push('FormPets', { acao: editarPet, pet: item })}>
                 Editar
               </Button>
               <Button
@@ -152,5 +151,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 10,
     paddingBottom: 15,
     paddingHorizontal: 16,
+  },
+  imagemCard: {
+    width: 150, // Altere o valor para ajustar o tamanho da imagem
+    height: 150, // Altere o valor para ajustar o tamanho da imagem
+    borderRadius: 50,
+    marginRight: 10,
   },
 });
