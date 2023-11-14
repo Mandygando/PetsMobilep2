@@ -2,7 +2,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ListaPets from './ListaPets';
 import FormPets from './FormPets';
 
-
 const Stack = createStackNavigator();
 
 export default function StackPets() {

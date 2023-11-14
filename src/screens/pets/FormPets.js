@@ -5,10 +5,16 @@ import { Button, Text, TextInput } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function FormPets({ navigation, route }) {
-  const { acao, pet: petAntigo } = route.params;
+  const { acaoTipo, pet: petAntigo } = route.params;
   const [imagem, setImagem] = useState(null);
+  const [formData, setFormData] = useState({
+    nome: '',
+    raca: '',
+    idade: '',
+  });
 
   const validationSchema = Yup.object().shape({
     nome: Yup.string().required('Campo obrigatório!'),
@@ -17,11 +23,14 @@ export default function FormPets({ navigation, route }) {
   });
 
   useEffect(() => {
+    console.log('useEffect acionado', petAntigo); // Adicione esta linha
     if (petAntigo) {
-      setNome(petAntigo?.nome || '');
-      setRaca(petAntigo?.raca || '');
-      setIdade(petAntigo?.idade?.toString() || '');
-      setImagem(petAntigo?.imagem || null);
+      setFormData({
+        nome: petAntigo.nome,
+        raca: petAntigo.raca,
+        idade: petAntigo.idade.toString(),
+      });
+      setImagem(petAntigo.imagem);
     }
   }, [petAntigo]);
 
@@ -33,27 +42,47 @@ export default function FormPets({ navigation, route }) {
       quality: 1,
     });
 
-    if (!result.cancelled) {
-      setImagem(result.uri);
+    if (!result.canceled) {
+      setImagem(result.assets[0].uri);
     }
   };
 
-  function salvar(novoPet) {
-    novoPet.imagem = imagem; // Adiciona a imagem ao objeto do pet
+  const salvar = async (novoPet) => {
+    novoPet.imagem = imagem;
 
-    if (petAntigo) {
-      acao(petAntigo, novoPet);
-    } else {
-      acao(novoPet);
+    try {
+      let petsStorage = await AsyncStorage.getItem('pets');
+      petsStorage = petsStorage ? JSON.parse(petsStorage) : [];
+
+      console.log('Pets Storage Antes de Salvar:', petsStorage); // Adicione esta linha
+
+      if (acaoTipo === 'editar') {
+        const index = petsStorage.findIndex((pet) => pet.id === petAntigo.id);
+        petsStorage[index] = novoPet;
+      } else {
+        novoPet.id = Date.now();
+        petsStorage.push(novoPet);
+      }
+
+      await AsyncStorage.setItem('pets', JSON.stringify(petsStorage));
+
+      console.log('Pets Storage Após Salvar:', petsStorage); // Adicione esta linha
+
+      Toast.show({
+        type: 'success',
+        text1: 'Pet salvo com sucesso!',
+      });
+
+      navigation.goBack();
+    } catch (error) {
+      console.error('Erro ao salvar pet:', error);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Erro ao salvar pet. Tente novamente.',
+      });
     }
-
-    Toast.show({
-      type: 'success',
-      text1: 'Pet salvo com sucesso!',
-    });
-
-    navigation.goBack();
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -62,17 +91,16 @@ export default function FormPets({ navigation, route }) {
       <Button onPress={handlePickImage}>Escolher Imagem</Button>
 
       <Text variant="titleLarge" style={styles.title}>
-        {petAntigo ? 'Editar Pet' : 'Adicionar Pet'}
+        {acaoTipo === 'editar' ? 'Editar Pet' : 'Adicionar Pet'}
       </Text>
 
       <Formik
-        initialValues={{
-          nome: petAntigo?.nome || '',
-          raca: petAntigo?.raca || '',
-          idade: petAntigo?.idade?.toString() || '',
-        }}
+        initialValues={formData}
         validationSchema={validationSchema}
-        onSubmit={(values) => salvar(values)}
+        onSubmit={(values) => {
+          console.log('Valores do Formik:', values); // Adicione esta linha
+          salvar(values);
+        }}
       >
         {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
           <>

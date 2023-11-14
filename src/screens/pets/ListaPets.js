@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, View, Image } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { Button, Card, Dialog, FAB, Portal, Text } from 'react-native-paper';
 import Toast from 'react-native-toast-message';
 
@@ -19,101 +19,69 @@ export default function ListaPets({ navigation }) {
     setPets(petsStorage);
   }
 
-  const showModal = () => setShowModalExcluirPet(true);
+  const exibirModalExcluirPet = (pet) => {
+    setPetASerExcluido(pet);
+    setShowModalExcluirPet(true);
+  };
 
-  const hideModal = () => setShowModalExcluirPet(false);
+  const fecharModalExcluirPet = () => {
+    setPetASerExcluido(null);
+    setShowModalExcluirPet(false);
+  };
 
-  async function adicionarPet(pet) {
-    let novaListaPets = pets;
-    novaListaPets.push(pet);
-    await AsyncStorage.setItem('pets', JSON.stringify(novaListaPets));
-    setPets(novaListaPets);
-  }
+  const excluirPet = async () => {
+    const novosPets = pets.filter((p) => p.id !== petASerExcluido.id);
+    await AsyncStorage.setItem('pets', JSON.stringify(novosPets));
+    setPets(novosPets);
+    fecharModalExcluirPet();
 
-  async function editarPet(petAntigo, novosDados) {
-    const novaListaPets = pets.map((pet) => {
-      if (pet === petAntigo) {
-        return novosDados;
-      } else {
-        return pet;
-      }
-    });
-
-    await AsyncStorage.setItem('pets', JSON.stringify(novaListaPets));
-    setPets(novaListaPets);
-  }
-
-  async function excluirPet(pet) {
-    const novaListaPets = pets.filter((p) => p !== pet);
-    await AsyncStorage.setItem('pets', JSON.stringify(novaListaPets));
-    setPets(novaListaPets);
     Toast.show({
       type: 'success',
       text1: 'Pet excluído com sucesso!',
     });
-  }
+  };
 
-  function handleExcluirPet() {
-    excluirPet(petASerExcluido);
-    setPetASerExcluido(null);
-    hideModal();
-  }
+  const editarPet = (pet) => {
+    navigation.navigate('FormPets', { acaoTipo: 'editar', pet });
+  };
 
   return (
     <View style={styles.container}>
-      <Text variant="titleLarge" style={styles.title}>
-        Lista de Pets
-      </Text>
-
       <FlatList
-        style={styles.list}
         data={pets}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Card mode="outlined" style={styles.card}>
-            <Card.Content style={styles.cardContent}>
-              <View style={{ flex: 1 }}>
-                {item.imagem && (
-                  <Image source={{ uri: item.imagem }} style={styles.imagemCard} />
-                )}
-                <Text variant="titleMedium">{item?.nome}</Text>
-                <Text variant="bodyLarge">Raça: {item?.raca}</Text>
-                <Text variant="bodyLarge">Idade: {item?.idade} anos</Text>
-              </View>
+          <Card style={styles.card}>
+            <Card.Cover source={{ uri: item.imagem }} />
+            <Card.Content>
+              <Text style={styles.cardTitle}>{item.nome}</Text>
+              <Text>{`Raça: ${item.raca}`}</Text>
+              <Text>{`Idade: ${item.idade} anos`}</Text>
             </Card.Content>
             <Card.Actions>
-              <Button onPress={() => navigation.push('FormPets', { acao: editarPet, pet: item })}>
-                Editar
-              </Button>
-              <Button
-                onPress={() => {
-                  setPetASerExcluido(item);
-                  showModal();
-                }}
-              >
-                Excluir
-              </Button>
+              <Button onPress={() => editarPet(item)}>Editar</Button>
+              <Button onPress={() => exibirModalExcluirPet(item)}>Excluir</Button>
             </Card.Actions>
           </Card>
         )}
       />
 
-      {/* Botão Flutuante */}
       <FAB
-        icon="plus"
         style={styles.fab}
-        onPress={() => navigation.push('FormPets', { acao: adicionarPet })}
+        small
+        icon="plus"
+        onPress={() => navigation.navigate('FormPets', { acaoTipo: 'adicionar' })}
       />
 
-      {/* Modal Excluir Pet */}
       <Portal>
-        <Dialog visible={showModalExcluirPet} onDismiss={hideModal}>
-          <Dialog.Title>Atenção!</Dialog.Title>
+        <Dialog visible={showModalExcluirPet} onDismiss={fecharModalExcluirPet}>
+          <Dialog.Title>Excluir Pet</Dialog.Title>
           <Dialog.Content>
-            <Text variant="bodyMedium">Tem certeza que deseja excluir este pet?</Text>
+            <Text>{`Deseja excluir o pet ${petASerExcluido?.nome}?`}</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={hideModal}>Voltar</Button>
-            <Button onPress={handleExcluirPet}>Tenho Certeza</Button>
+            <Button onPress={fecharModalExcluirPet}>Cancelar</Button>
+            <Button onPress={excluirPet}>Excluir</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -127,35 +95,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: {
-    fontWeight: 'bold',
+  card: {
     margin: 10,
+    width: 300,
+  },
+  cardTitle: {
+    fontWeight: 'bold',
+    fontSize: 20,
   },
   fab: {
     position: 'absolute',
     margin: 16,
     right: 0,
     bottom: 0,
-  },
-  list: {
-    width: '90%',
-  },
-  card: {
-    marginTop: 15,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    backgroundColor: '#e1e1e1',
-    borderWidth: 2,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    paddingBottom: 15,
-    paddingHorizontal: 16,
-  },
-  imagemCard: {
-    width: 150, // Altere o valor para ajustar o tamanho da imagem
-    height: 150, // Altere o valor para ajustar o tamanho da imagem
-    borderRadius: 50,
-    marginRight: 10,
   },
 });
