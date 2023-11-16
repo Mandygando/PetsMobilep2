@@ -5,7 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AnimatedDelete from '../../components/AnimatedDelete';
 
-
 export default function ListaPets({ navigation }) {
   const [pets, setPets] = useState([]);
   const [showDeleteAnimation, setShowDeleteAnimation] = useState(false);
@@ -58,7 +57,7 @@ export default function ListaPets({ navigation }) {
               <Text>{`Idade: ${item.idade} anos`}</Text>
             </Card.Content>
             <Card.Actions>
-              <IconButton icon="pencil" onPress={() => editarPet(item)} />
+              <IconButton icon="pencil" onPress={() => navigation.navigate('FormPets', { acaoTipo: 'editar', pet: item, onPetUpdated })} />
               <IconButton icon={() => <Icon name="delete" size={24} color="#FF0000" />} onPress={() => excluirPet(item)} />
             </Card.Actions>
           </Card>
