@@ -6,12 +6,7 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const validationSchema = Yup.object().shape({
-  nome: Yup.string().required('Campo obrigatório!'),
-  raca: Yup.string().required('Campo obrigatório!'),
-  idade: Yup.number().required('Campo obrigatório!'),
-});
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function FormPets({ navigation, route }) {
   const { acaoTipo, pet: petAntigo, onPetUpdated } = route.params;
@@ -46,6 +41,12 @@ export default function FormPets({ navigation, route }) {
     }
   };
 
+  const validationSchema = Yup.object().shape({
+    nome: Yup.string().required('Campo obrigatório!'),
+    raca: Yup.string().required('Campo obrigatório!'),
+    idade: Yup.number().required('Campo obrigatório!'),
+  });
+
   const salvar = async (novoPet) => {
     novoPet.imagem = imagem;
 
@@ -68,7 +69,9 @@ export default function FormPets({ navigation, route }) {
         text1: 'Pet salvo com sucesso!',
       });
 
-      onPetUpdated(); // Atualiza a lista de pets no componente pai
+      if (onPetUpdated) {
+        onPetUpdated();
+      }
 
       navigation.goBack();
     } catch (error) {
@@ -83,10 +86,6 @@ export default function FormPets({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
-
-      <Button onPress={handlePickImage}>Escolher Imagem</Button>
-
       <Text variant="titleLarge" style={styles.title}>
         {acaoTipo === 'editar' ? 'Editar Pet' : 'Adicionar Pet'}
       </Text>
@@ -100,9 +99,19 @@ export default function FormPets({ navigation, route }) {
       >
         {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
           <>
-            <View style={sharedStyles.inputContainer}>
+            <Button
+              style={[styles.button, { backgroundColor: '#bfaee3', width: '80%', alignSelf: 'center' }]}
+              labelStyle={{ color: '#FFFFFF' }}
+              onPress={handlePickImage}
+            >
+              Escolher Imagem
+            </Button>
+
+            {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
+
+            <View style={styles.inputContainer}>
               <TextInput
-                style={sharedStyles.input}
+                style={styles.input}
                 mode="outlined"
                 label="Nome"
                 value={values.nome}
@@ -115,7 +124,7 @@ export default function FormPets({ navigation, route }) {
               )}
 
               <TextInput
-                style={sharedStyles.input}
+                style={styles.input}
                 mode="outlined"
                 label="Raça"
                 value={values.raca}
@@ -128,7 +137,7 @@ export default function FormPets({ navigation, route }) {
               )}
 
               <TextInput
-                style={sharedStyles.input}
+                style={styles.input}
                 mode="outlined"
                 label="Idade"
                 value={values.idade}
@@ -142,12 +151,27 @@ export default function FormPets({ navigation, route }) {
               )}
             </View>
 
-            <View style={sharedStyles.buttonContainer}>
-              <Button style={sharedStyles.button} mode="contained-tonal" onPress={() => navigation.goBack()}>
+            <View style={styles.buttonContainer}>
+              <Button
+                style={[styles.button, { backgroundColor: '#5fa0c8' }]}
+                labelStyle={{ color: '#FFFFFF' }}
+                icon={({ color, size }) => (
+                  <MaterialIcons name="arrow-back" color="#FFFFFF" size={size} />
+                )}
+                mode="contained-tonal"
+                onPress={() => navigation.goBack()}
+              >
                 Voltar
               </Button>
 
-              <Button style={sharedStyles.button} mode="contained" onPress={handleSubmit}>
+              <Button
+                style={[styles.button, { backgroundColor: '#008000' }]}
+                icon={({ color, size }) => (
+                  <MaterialIcons name="save" color={color} size={size} />
+                )}
+                mode="contained"
+                onPress={handleSubmit}
+              >
                 Salvar
               </Button>
             </View>
@@ -168,25 +192,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     margin: 10,
   },
-  imagem: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    marginBottom: 20,
-  },
-});
-
-const sharedStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  button: {
-    flex: 1,
-  },
   inputContainer: {
-    width: '90%',
+    width: '80%',
     flex: 1,
   },
   input: {
@@ -195,7 +202,17 @@ const sharedStyles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     width: '90%',
-    gap: 10,
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  button: {
+    width: '40%', // Use a porcentagem menor para evitar problemas de layout
+    marginVertical: 10,
+  },
+  imagem: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginBottom: 20,
   },
 });

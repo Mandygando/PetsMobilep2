@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Button, Card, Dialog, FAB, Portal, Text } from 'react-native-paper';
+import { Card, FAB, IconButton, Text } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import AnimatedDelete from '../../components/AnimatedDelete';
+
 
 export default function ListaPets({ navigation }) {
   const [pets, setPets] = useState([]);
-  const [showModalExcluirPet, setShowModalExcluirPet] = useState(false);
-  const [petASerExcluido, setPetASerExcluido] = useState(null);
+  const [showDeleteAnimation, setShowDeleteAnimation] = useState(false);
 
   useEffect(() => {
     loadPets();
@@ -23,43 +24,24 @@ export default function ListaPets({ navigation }) {
     }
   }
 
-  const exibirModalExcluirPet = (pet) => {
-    setPetASerExcluido(pet);
-    setShowModalExcluirPet(true);
-  };
+  const excluirPet = async (pet) => {
+    const novosPets = pets.filter((p) => p.id !== pet.id);
 
-  const fecharModalExcluirPet = () => {
-    setPetASerExcluido(null);
-    setShowModalExcluirPet(false);
-  };
-
-  const excluirPet = async () => {
-    const novosPets = pets.filter((p) => p.id !== petASerExcluido.id);
     try {
       await AsyncStorage.setItem('pets', JSON.stringify(novosPets));
       setPets(novosPets);
-      fecharModalExcluirPet();
-
-      Toast.show({
-        type: 'success',
-        text1: 'Pet excluído com sucesso!',
-      });
+      setShowDeleteAnimation(true);
     } catch (error) {
       console.error('Erro ao excluir pet:', error);
-
-      Toast.show({
-        type: 'error',
-        text1: 'Erro ao excluir pet. Tente novamente.',
-      });
     }
-  };
-
-  const editarPet = (pet) => {
-    navigation.navigate('FormPets', { acaoTipo: 'editar', pet, onPetUpdated });
   };
 
   const onPetUpdated = () => {
     loadPets(); // Atualiza a lista de pets após uma edição ou adição
+  };
+
+  const hideDeleteAnimation = () => {
+    setShowDeleteAnimation(false);
   };
 
   return (
@@ -76,8 +58,8 @@ export default function ListaPets({ navigation }) {
               <Text>{`Idade: ${item.idade} anos`}</Text>
             </Card.Content>
             <Card.Actions>
-              <Button onPress={() => editarPet(item)}>Editar</Button>
-              <Button onPress={() => exibirModalExcluirPet(item)}>Excluir</Button>
+              <IconButton icon="pencil" onPress={() => editarPet(item)} />
+              <IconButton icon={() => <Icon name="delete" size={24} color="#FF0000" />} onPress={() => excluirPet(item)} />
             </Card.Actions>
           </Card>
         )}
@@ -85,23 +67,12 @@ export default function ListaPets({ navigation }) {
 
       <FAB
         style={styles.fab}
-        small
         icon="plus"
+        color="#FFFFFF"
         onPress={() => navigation.navigate('FormPets', { acaoTipo: 'adicionar', onPetUpdated })}
       />
 
-      <Portal>
-        <Dialog visible={showModalExcluirPet} onDismiss={fecharModalExcluirPet}>
-          <Dialog.Title>Excluir Pet</Dialog.Title>
-          <Dialog.Content>
-            <Text>{`Deseja excluir o pet ${petASerExcluido?.nome}?`}</Text>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={fecharModalExcluirPet}>Cancelar</Button>
-            <Button onPress={excluirPet}>Excluir</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+      {showDeleteAnimation && <AnimatedDelete onDelete={hideDeleteAnimation} />}
     </View>
   );
 }
@@ -111,6 +82,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#dff2d9', // Cor de fundo da tela
   },
   card: {
     margin: 10,
@@ -122,8 +94,9 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
+    margin: 3,
+    left: 0, // Mova para o canto superior esquerdo definindo 'left' como 0
+    top: 0, // Mova para o canto superior definindo 'top' como 0
+    backgroundColor: '#008000', // Cor de fundo do botão
   },
 });
