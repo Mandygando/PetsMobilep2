@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Button, Card, Dialog, FAB, Portal, Text } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
 export default function ListaPets({ navigation }) {
@@ -14,9 +14,13 @@ export default function ListaPets({ navigation }) {
   }, []);
 
   async function loadPets() {
-    const response = await AsyncStorage.getItem('pets');
-    const petsStorage = response ? JSON.parse(response) : [];
-    setPets(petsStorage);
+    try {
+      const response = await AsyncStorage.getItem('pets');
+      const petsStorage = response ? JSON.parse(response) : [];
+      setPets(petsStorage);
+    } catch (error) {
+      console.error('Erro ao carregar pets:', error);
+    }
   }
 
   const exibirModalExcluirPet = (pet) => {
@@ -31,25 +35,38 @@ export default function ListaPets({ navigation }) {
 
   const excluirPet = async () => {
     const novosPets = pets.filter((p) => p.id !== petASerExcluido.id);
-    await AsyncStorage.setItem('pets', JSON.stringify(novosPets));
-    setPets(novosPets);
-    fecharModalExcluirPet();
+    try {
+      await AsyncStorage.setItem('pets', JSON.stringify(novosPets));
+      setPets(novosPets);
+      fecharModalExcluirPet();
 
-    Toast.show({
-      type: 'success',
-      text1: 'Pet excluído com sucesso!',
-    });
+      Toast.show({
+        type: 'success',
+        text1: 'Pet excluído com sucesso!',
+      });
+    } catch (error) {
+      console.error('Erro ao excluir pet:', error);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Erro ao excluir pet. Tente novamente.',
+      });
+    }
   };
 
   const editarPet = (pet) => {
-    navigation.navigate('FormPets', { acaoTipo: 'editar', pet });
+    navigation.navigate('FormPets', { acaoTipo: 'editar', pet, onPetUpdated });
+  };
+
+  const onPetUpdated = () => {
+    loadPets(); // Atualiza a lista de pets após uma edição ou adição
   };
 
   return (
     <View style={styles.container}>
       <FlatList
         data={pets}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
         renderItem={({ item }) => (
           <Card style={styles.card}>
             <Card.Cover source={{ uri: item.imagem }} />
@@ -70,7 +87,7 @@ export default function ListaPets({ navigation }) {
         style={styles.fab}
         small
         icon="plus"
-        onPress={() => navigation.navigate('FormPets', { acaoTipo: 'adicionar' })}
+        onPress={() => navigation.navigate('FormPets', { acaoTipo: 'adicionar', onPetUpdated })}
       />
 
       <Portal>

@@ -1,14 +1,20 @@
-import { Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
+import { Formik } from 'formik';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const validationSchema = Yup.object().shape({
+  nome: Yup.string().required('Campo obrigatório!'),
+  raca: Yup.string().required('Campo obrigatório!'),
+  idade: Yup.number().required('Campo obrigatório!'),
+});
+
 export default function FormPets({ navigation, route }) {
-  const { acaoTipo, pet: petAntigo } = route.params;
+  const { acaoTipo, pet: petAntigo, onPetUpdated } = route.params;
   const [imagem, setImagem] = useState(null);
   const [formData, setFormData] = useState({
     nome: '',
@@ -16,14 +22,7 @@ export default function FormPets({ navigation, route }) {
     idade: '',
   });
 
-  const validationSchema = Yup.object().shape({
-    nome: Yup.string().required('Campo obrigatório!'),
-    raca: Yup.string().required('Campo obrigatório!'),
-    idade: Yup.number().required('Campo obrigatório!'),
-  });
-
   useEffect(() => {
-    console.log('useEffect acionado', petAntigo); // Adicione esta linha
     if (petAntigo) {
       setFormData({
         nome: petAntigo.nome,
@@ -54,8 +53,6 @@ export default function FormPets({ navigation, route }) {
       let petsStorage = await AsyncStorage.getItem('pets');
       petsStorage = petsStorage ? JSON.parse(petsStorage) : [];
 
-      console.log('Pets Storage Antes de Salvar:', petsStorage); // Adicione esta linha
-
       if (acaoTipo === 'editar') {
         const index = petsStorage.findIndex((pet) => pet.id === petAntigo.id);
         petsStorage[index] = novoPet;
@@ -66,12 +63,12 @@ export default function FormPets({ navigation, route }) {
 
       await AsyncStorage.setItem('pets', JSON.stringify(petsStorage));
 
-      console.log('Pets Storage Após Salvar:', petsStorage); // Adicione esta linha
-
       Toast.show({
         type: 'success',
         text1: 'Pet salvo com sucesso!',
       });
+
+      onPetUpdated(); // Atualiza a lista de pets no componente pai
 
       navigation.goBack();
     } catch (error) {
@@ -98,15 +95,14 @@ export default function FormPets({ navigation, route }) {
         initialValues={formData}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          console.log('Valores do Formik:', values); // Adicione esta linha
           salvar(values);
         }}
       >
         {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
           <>
-            <View style={styles.inputContainer}>
+            <View style={sharedStyles.inputContainer}>
               <TextInput
-                style={styles.input}
+                style={sharedStyles.input}
                 mode="outlined"
                 label="Nome"
                 value={values.nome}
@@ -119,7 +115,7 @@ export default function FormPets({ navigation, route }) {
               )}
 
               <TextInput
-                style={styles.input}
+                style={sharedStyles.input}
                 mode="outlined"
                 label="Raça"
                 value={values.raca}
@@ -132,7 +128,7 @@ export default function FormPets({ navigation, route }) {
               )}
 
               <TextInput
-                style={styles.input}
+                style={sharedStyles.input}
                 mode="outlined"
                 label="Idade"
                 value={values.idade}
@@ -146,12 +142,12 @@ export default function FormPets({ navigation, route }) {
               )}
             </View>
 
-            <View style={styles.buttonContainer}>
-              <Button style={styles.button} mode="contained-tonal" onPress={() => navigation.goBack()}>
+            <View style={sharedStyles.buttonContainer}>
+              <Button style={sharedStyles.button} mode="contained-tonal" onPress={() => navigation.goBack()}>
                 Voltar
               </Button>
 
-              <Button style={styles.button} mode="contained" onPress={handleSubmit}>
+              <Button style={sharedStyles.button} mode="contained" onPress={handleSubmit}>
                 Salvar
               </Button>
             </View>
@@ -172,6 +168,23 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     margin: 10,
   },
+  imagem: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginBottom: 20,
+  },
+});
+
+const sharedStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  button: {
+    flex: 1,
+  },
   inputContainer: {
     width: '90%',
     flex: 1,
@@ -184,14 +197,5 @@ const styles = StyleSheet.create({
     width: '90%',
     gap: 10,
     marginBottom: 10,
-  },
-  button: {
-    flex: 1,
-  },
-  imagem: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    marginBottom: 20,
   },
 });
