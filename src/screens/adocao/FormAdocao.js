@@ -16,6 +16,7 @@ export default function FormAdocao({ navigation, route }) {
     raca: '',
     idade: '',
   });
+  const [dadosCarregados, setDadosCarregados] = useState(false);
 
   useEffect(() => {
     if (petAntigo) {
@@ -25,6 +26,7 @@ export default function FormAdocao({ navigation, route }) {
         idade: petAntigo.idade.toString(),
       });
       setImagem(petAntigo.imagem);
+      setDadosCarregados(true);
     }
   }, [petAntigo]);
 
@@ -83,6 +85,11 @@ export default function FormAdocao({ navigation, route }) {
       });
     }
   };
+
+  if (!dadosCarregados) {
+    // Pode exibir um indicador de carregamento aqui
+    return null;
+  }
 
   return (
     <View style={styles.container}>

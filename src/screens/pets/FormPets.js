@@ -16,6 +16,7 @@ export default function FormPets({ navigation, route }) {
     raca: '',
     idade: '',
   });
+  const [dadosCarregados, setDadosCarregados] = useState(false);
 
   useEffect(() => {
     if (petAntigo) {
@@ -25,6 +26,7 @@ export default function FormPets({ navigation, route }) {
         idade: petAntigo.idade.toString(),
       });
       setImagem(petAntigo.imagem);
+      setDadosCarregados(true);
     }
   }, [petAntigo]);
 
@@ -83,6 +85,11 @@ export default function FormPets({ navigation, route }) {
       });
     }
   };
+
+  if (!dadosCarregados) {
+    // Pode exibir um indicador de carregamento aqui
+    return null;
+  }
 
   return (
     <View style={styles.container}>
@@ -206,7 +213,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
-    width: '40%', // Use a porcentagem menor para evitar problemas de layout
+    width: '40%',
     marginVertical: 10,
   },
   imagem: {
