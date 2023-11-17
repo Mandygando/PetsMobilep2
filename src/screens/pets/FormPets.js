@@ -96,6 +96,7 @@ export default function FormPets({ navigation, route }) {
         onSubmit={(values) => {
           salvar(values);
         }}
+        enableReinitialize={true} // Enable reinitialization of the form
       >
         {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
           <>
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   button: {
-    width: '40%', // Use a porcentagem menor para evitar problemas de layout
+    width: '40%', // Use a smaller percentage to avoid layout problems
     marginVertical: 10,
   },
   imagem: {

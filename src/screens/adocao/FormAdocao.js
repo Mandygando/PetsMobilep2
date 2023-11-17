@@ -9,24 +9,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function FormAdocao({ navigation, route }) {
-  // Extrai informações da rota
   const { acaoTipo, pet: petAntigo, onPetAdotado } = route.params;
-
-  // Estado para armazenar a imagem selecionada
   const [imagem, setImagem] = useState(null);
-
-  // Estado para armazenar os dados do formulário
   const [formData, setFormData] = useState({
     nome: '',
     raca: '',
     idade: '',
   });
+  const [formReady, setFormReady] = useState(false);
 
-  // Efeito para preencher o formulário com dados existentes ao editar
   useEffect(() => {
-    console.log('petAntigo:', petAntigo);
-  
-    if (petAntigo && petAntigo.nome) {
+    console.log('LOG Pet Antigo (antes):', petAntigo);
+
+    if (petAntigo) {
+      console.log('LOG Pet Antigo (dentro):', petAntigo);
+
       setFormData((prevData) => ({
         ...prevData,
         nome: petAntigo.nome || '',
@@ -34,10 +31,16 @@ export default function FormAdocao({ navigation, route }) {
         idade: petAntigo.idade ? petAntigo.idade.toString() : '',
       }));
       setImagem(petAntigo.imagem);
+      setFormReady(true); // Marcar o formulário como pronto após a atualização dos dados
     }
   }, [petAntigo]);
 
-  // Função para escolher uma imagem da galeria
+  useEffect(() => {
+    if (formReady) {
+      console.log('LOG FormData:', formData);
+    }
+  }, [formData, formReady]);
+
   const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -46,28 +49,24 @@ export default function FormAdocao({ navigation, route }) {
       quality: 1,
     });
 
-    if (!result.cancelled) {
+    if (!result.canceled) {
       setImagem(result.assets[0].uri);
     }
   };
 
-  // Esquema de validação com Yup
   const validationSchema = Yup.object().shape({
     nome: Yup.string().required('Campo obrigatório!'),
     raca: Yup.string().required('Campo obrigatório!'),
     idade: Yup.number().required('Campo obrigatório!'),
   });
 
-  // Função para salvar os dados do pet
   const salvar = async (novoPet) => {
     novoPet.imagem = imagem;
 
     try {
-      // Obter pets salvos no AsyncStorage
       let petsStorage = await AsyncStorage.getItem('petsAdocao');
       petsStorage = petsStorage ? JSON.parse(petsStorage) : [];
 
-      // Atualizar ou adicionar novo pet
       if (acaoTipo === 'editar') {
         const index = petsStorage.findIndex((pet) => pet.id === petAntigo.id);
         petsStorage[index] = novoPet;
@@ -76,26 +75,21 @@ export default function FormAdocao({ navigation, route }) {
         petsStorage.push(novoPet);
       }
 
-      // Salvar pets de volta no AsyncStorage
       await AsyncStorage.setItem('petsAdocao', JSON.stringify(petsStorage));
 
-      // Exibir mensagem de sucesso
       Toast.show({
         type: 'success',
         text1: 'Pet salvo com sucesso!',
       });
 
-      // Chamar a função de retorno se fornecida
       if (onPetAdotado) {
         onPetAdotado();
       }
 
-      // Navegar de volta
       navigation.goBack();
     } catch (error) {
       console.error('Erro ao salvar pet:', error);
 
-      // Exibir mensagem de erro
       Toast.show({
         type: 'error',
         text1: 'Erro ao salvar pet. Tente novamente.',
@@ -109,17 +103,16 @@ export default function FormAdocao({ navigation, route }) {
         {acaoTipo === 'editar' ? 'Editar Pet' : 'Adicionar Pet'}
       </Text>
 
-      {/* Formulário usando Formik */}
       <Formik
         initialValues={formData}
         validationSchema={validationSchema}
         onSubmit={(values) => {
           salvar(values);
         }}
+        enableReinitialize={true} // Enable reinitialization of the form
       >
         {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
           <>
-            {/* Botão para escolher uma imagem */}
             <Button
               style={[styles.button, { backgroundColor: '#bfaee3', width: '80%', alignSelf: 'center' }]}
               labelStyle={{ color: '#FFFFFF' }}
@@ -128,10 +121,8 @@ export default function FormAdocao({ navigation, route }) {
               Escolher Imagem
             </Button>
 
-            {/* Exibir imagem selecionada */}
             {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
 
-            {/* Campos de entrada para nome, raça e idade */}
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
@@ -140,7 +131,7 @@ export default function FormAdocao({ navigation, route }) {
                 value={values.nome}
                 onChangeText={handleChange('nome')}
                 onBlur={handleBlur('nome')}
-                error={touched.nome && errors.nome ? true : false}
+                error={errors.nome ? true : false}
               />
               {touched.nome && errors.nome && (
                 <Text style={{ color: 'red', textAlign: 'center' }}>{errors.nome}</Text>
@@ -153,7 +144,7 @@ export default function FormAdocao({ navigation, route }) {
                 value={values.raca}
                 onChangeText={handleChange('raca')}
                 onBlur={handleBlur('raca')}
-                error={touched.raca && errors.raca ? true : false}
+                error={errors.raca ? true : false}
               />
               {touched.raca && errors.raca && (
                 <Text style={{ color: 'red', textAlign: 'center' }}>{errors.raca}</Text>
@@ -167,14 +158,13 @@ export default function FormAdocao({ navigation, route }) {
                 onChangeText={handleChange('idade')}
                 onBlur={handleBlur('idade')}
                 keyboardType="numeric"
-                error={touched.idade && errors.idade ? true : false}
+                error={errors.idade ? true : false}
               />
               {touched.idade && errors.idade && (
                 <Text style={{ color: 'red', textAlign: 'center' }}>{errors.idade}</Text>
               )}
             </View>
 
-            {/* Botões de navegação e salvar */}
             <View style={styles.buttonContainer}>
               <Button
                 style={[styles.button, { backgroundColor: '#5fa0c8' }]}
