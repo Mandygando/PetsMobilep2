@@ -3,14 +3,14 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, View, StatusBar } from 'react-native';
 
-import Cadastro from '../screens/Cadastro/Cadastro';
 import StackPets from '../screens/pets/StackPets';
+import StackAdocao from '../screens/adocao/StackAdocao';
 
 const Tab = createBottomTabNavigator();
 
-const CustomTabBarLabel = ({ focused, label }) => (
+const CustomTabBarLabel = ({ focused, label, iconName }) => (
   <View style={{ alignItems: 'center' }}>
-    <Ionicons name="paw" size={24} color={focused ? '#FFFFFF' : '#AFAFAF'} />
+    <Ionicons name={iconName} size={24} color={focused ? '#FFFFFF' : '#AFAFAF'} />
     <Text style={{ color: focused ? '#FFFFFF' : '#AFAFAF', marginTop: 4 }}>{label}</Text>
   </View>
 );
@@ -27,15 +27,15 @@ export default function App() {
 
               if (route.name === 'StackPets') {
                 iconName = 'paw';
-              } else if (route.name === 'Cadastro') {
-                iconName = 'person';
+              } else if (route.name === 'StackAdocao') {
+                iconName = 'heart'; // Mudança para o ícone de coração
               }
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },
             tabBarShowLabel: false,
             tabBarStyle: {
-              backgroundColor: '#9ddb95', // Cor de fundo da parte inferior (aba de navegação)
+              backgroundColor: '#9ddb95',
             },
           })}
         >
@@ -45,16 +45,30 @@ export default function App() {
             options={{
               tabBarLabel: 'Pets',
               tabBarIcon: ({ focused, color, size }) => (
-                <CustomTabBarLabel focused={focused} label="Pets" />
+                <CustomTabBarLabel focused={focused} label="Pets" iconName="paw" />
               ),
               headerStyle: {
-                backgroundColor: '#5ec880', // Cor de fundo da barra de navegação
+                backgroundColor: '#5ec880',
               },
-              headerTitleAlign: 'center', // Centralize o texto
-              headerTintColor: '#FFFFFF', // Cor do texto
+              headerTitleAlign: 'center',
+              headerTintColor: '#FFFFFF',
             }}
           />
-          <Tab.Screen name="Cadastro" component={Cadastro} />
+          <Tab.Screen
+            name="Adocao"
+            component={StackAdocao}
+            options={{
+              tabBarLabel: 'Adoção',
+              tabBarIcon: ({ focused, color, size }) => (
+                <CustomTabBarLabel focused={focused} label="Adoção" iconName="heart" />
+              ),
+              headerStyle: {
+                backgroundColor: '#5ec880',
+              },
+              headerTitleAlign: 'center',
+              headerTintColor: '#FFFFFF',
+            }}
+          />
         </Tab.Navigator>
       </View>
     </>
