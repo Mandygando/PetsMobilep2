@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function FormAdocao({ navigation, route }) {
-  const { acaoTipo, pet: petAntigo, onPetAdotado } = route.params;
+  const { acaoTipo, pet: petAntigo } = route.params;
   const [imagem, setImagem] = useState(null);
   const [formData, setFormData] = useState({
     nome: '',
@@ -82,8 +82,9 @@ export default function FormAdocao({ navigation, route }) {
         text1: 'Pet salvo com sucesso!',
       });
 
-      if (onPetAdotado) {
-        onPetAdotado();
+      // Chame a função onPetAdotado diretamente
+      if (route.params?.onPetAdotado) {
+        await route.params.onPetAdotado();
       }
 
       navigation.goBack();
@@ -96,6 +97,7 @@ export default function FormAdocao({ navigation, route }) {
       });
     }
   };
+
 
   return (
     <View style={styles.container}>

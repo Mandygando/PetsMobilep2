@@ -55,6 +55,7 @@ export default function ListaPets({ navigation }) {
               <Text style={styles.cardTitle}>{item.nome}</Text>
               <Text>{`Raça: ${item.raca}`}</Text>
               <Text>{`Idade: ${item.idade} anos`}</Text>
+              <Text>{`Tutor: ${item.tutor || ''}`}</Text>
             </Card.Content>
             <Card.Actions>
               <IconButton icon="pencil" onPress={() => navigation.navigate('FormPets', { acaoTipo: 'editar', pet: item, onPetUpdated })} />
