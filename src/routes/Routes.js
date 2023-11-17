@@ -5,6 +5,8 @@ import { Text, View, StatusBar } from 'react-native';
 
 import StackPets from '../screens/pets/StackPets';
 import StackAdocao from '../screens/adocao/StackAdocao';
+import StackPetshops from '../screens/petshop/StackPetshops';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +30,9 @@ export default function App() {
               if (route.name === 'StackPets') {
                 iconName = 'paw';
               } else if (route.name === 'StackAdocao') {
-                iconName = 'heart'; // Mudança para o ícone de coração
+                iconName = 'heart';
+              } else if (route.name === 'StackPetshops') { // Adicione esta condição
+                iconName = 'md-paw'; // Troque pelo ícone desejado para petshop
               }
 
               return <Ionicons name={iconName} size={size} color={color} />;
@@ -61,6 +65,21 @@ export default function App() {
               tabBarLabel: 'Adoção',
               tabBarIcon: ({ focused, color, size }) => (
                 <CustomTabBarLabel focused={focused} label="Adoção" iconName="heart" />
+              ),
+              headerStyle: {
+                backgroundColor: '#5ec880',
+              },
+              headerTitleAlign: 'center',
+              headerTintColor: '#FFFFFF',
+            }}
+          />
+          <Tab.Screen
+            name="Petshops" // Adicione esta rota
+            component={StackPetshops} // Adicione este componente
+            options={{
+              tabBarLabel: 'Petshops',
+              tabBarIcon: ({ focused, color, size }) => (
+                <CustomTabBarLabel focused={focused} label="Petshops" iconName="md-paw" />
               ),
               headerStyle: {
                 backgroundColor: '#5ec880',

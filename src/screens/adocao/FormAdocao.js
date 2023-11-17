@@ -109,7 +109,7 @@ export default function FormAdocao({ navigation, route }) {
         onSubmit={(values) => {
           salvar(values);
         }}
-        enableReinitialize={true} // Enable reinitialization of the form
+        enableReinitialize={true} 
       >
         {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
           <>
