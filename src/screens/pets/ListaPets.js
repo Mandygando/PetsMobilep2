@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#dff2d9', // Cor de fundo da tela
+    backgroundColor: '#f4fff4', // Cor de fundo da tela
   },
   card: {
     margin: 10,

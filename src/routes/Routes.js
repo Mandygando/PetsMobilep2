@@ -74,10 +74,10 @@ export default function App() {
             }}
           />
           <Tab.Screen
-            name="Petshops" // Adicione esta rota
-            component={StackPetshops} // Adicione este componente
+            name="Petshop" // Adicione esta rota
+            component={StackPetshops}
             options={{
-              tabBarLabel: 'Petshops',
+              tabBarLabel: 'Petshop',
               tabBarIcon: ({ focused, color, size }) => (
                 <CustomTabBarLabel focused={focused} label="Petshops" iconName="md-paw" />
               ),
