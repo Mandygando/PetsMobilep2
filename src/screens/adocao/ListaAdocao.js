@@ -71,7 +71,7 @@ export default function ListaAdocao({ navigation }) {
               </Card.Content>
               <Card.Actions>
                 <IconButton icon="pencil" onPress={() => navigation.navigate('FormAdocao', { acaoTipo: 'editar', pet: item, onPetAdotado })} />
-                <IconButton icon={() => <Icon name="delete" size={24} color="#FF0000" />} onPress={() => excluirPet(item)} />
+                <IconButton icon={() => <Icon name="favorite" size={24} color="#FF0000" />} onPress={() => excluirPet(item)} />
               </Card.Actions>
             </Card>
           )}
@@ -95,8 +95,6 @@ export default function ListaAdocao({ navigation }) {
         <Portal>
           <Modal visible={showLocationModal} onDismiss={hideLocationModal}>
             <View style={styles.locationModal}>
-              <Text>Detalhes de Localização:</Text>
-              <Text>Cocalzinho de Goiás, Girassol</Text>
               <Button onPress={hideLocationModal}>Fechar</Button>
             </View>
           </Modal>
