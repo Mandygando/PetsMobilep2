@@ -5,7 +5,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AnimatedDeleteAdocao from '../../components/AnimatedDeleteAdocao';
 
-export default function ListaAdocao({ navigation }) {
+// Componente para o item da lista
+const PetCard = ({ pet, onEdit, onDelete }) => (
+  <Card style={styles.card}>
+    <Card.Cover source={{ uri: pet.imagem }} />
+    <Card.Content>
+      <Text style={styles.cardTitle}>{pet.nome}</Text>
+      <Text>{`Raça: ${pet.raca}`}</Text>
+      <Text>{`Idade: ${pet.idade} ${pet.idade === 1 ? 'ano' : 'anos'}`}</Text>
+    </Card.Content>
+    <Card.Actions>
+      <IconButton icon="pencil" onPress={onEdit} />
+      <IconButton icon={() => <Icon name="favorite" size={24} color="#FF0000" />} onPress={onDelete} />
+    </Card.Actions>
+  </Card>
+);
+
+const ListaAdocao = ({ navigation }) => {
   const [pets, setPets] = useState([]);
   const [showDeleteAnimation, setShowDeleteAnimation] = useState(false);
   const [deletedPet, setDeletedPet] = useState(null);
@@ -62,18 +78,11 @@ export default function ListaAdocao({ navigation }) {
           data={pets}
           keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
           renderItem={({ item }) => (
-            <Card style={styles.card}>
-              <Card.Cover source={{ uri: item.imagem }} />
-              <Card.Content>
-                <Text style={styles.cardTitle}>{item.nome}</Text>
-                <Text>{`Raça: ${item.raca}`}</Text>
-                <Text>{`Idade: ${item.idade} anos`}</Text>
-              </Card.Content>
-              <Card.Actions>
-                <IconButton icon="pencil" onPress={() => navigation.navigate('FormAdocao', { acaoTipo: 'editar', pet: item, onPetAdotado })} />
-                <IconButton icon={() => <Icon name="favorite" size={24} color="#FF0000" />} onPress={() => excluirPet(item)} />
-              </Card.Actions>
-            </Card>
+            <PetCard
+              pet={item}
+              onEdit={() => navigation.navigate('FormAdocao', { acaoTipo: 'editar', pet: item, onPetAdotado })}
+              onDelete={() => excluirPet(item)}
+            />
           )}
         />
 
@@ -102,7 +111,7 @@ export default function ListaAdocao({ navigation }) {
       </View>
     </Provider>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -133,3 +142,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 });
+
+export default ListaAdocao;
