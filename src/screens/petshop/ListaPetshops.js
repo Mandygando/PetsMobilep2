@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f4fff4',
+    backgroundColor: '#e1e2fe',
   },
   card: {
     margin: 10,

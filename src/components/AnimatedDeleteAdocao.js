@@ -43,7 +43,7 @@ const AnimatedDeleteAdocao = ({ onDelete, onShowLocationDetails }) => {
   return (
     visible && (
       <Animated.View style={containerStyle}>
-        <Text style={styles.text}>Obrigado por adotar um animal! 🐾</Text>
+        <Text style={styles.text}>Obrigado por adotar um animal! 🤍</Text>
         <Text style={styles.instructions}>
           Para concluir o processo de adoção, leve os seguintes documentos:
         </Text>
@@ -72,7 +72,7 @@ const AnimatedDeleteAdocao = ({ onDelete, onShowLocationDetails }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#5fa0c8',
+    backgroundColor: '#6f1ec8',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
