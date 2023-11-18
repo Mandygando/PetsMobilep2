@@ -77,11 +77,6 @@ export default function FormAdocao({ navigation, route }) {
 
       await AsyncStorage.setItem('petsAdocao', JSON.stringify(petsStorage));
 
-      Toast.show({
-        type: 'success',
-        text1: 'Pet salvo com sucesso!',
-      });
-
       // Chame a função onPetAdotado diretamente
       if (route.params?.onPetAdotado) {
         await route.params.onPetAdotado();
@@ -171,11 +166,11 @@ export default function FormAdocao({ navigation, route }) {
               <Button
                 style={[styles.button, { backgroundColor: '#5fa0c8' }]}
                 labelStyle={{ color: '#FFFFFF' }}
+                onPress={() => navigation.goBack()}
                 icon={({ color, size }) => (
                   <MaterialIcons name="arrow-back" color="#FFFFFF" size={size} />
                 )}
                 mode="contained-tonal"
-                onPress={() => navigation.goBack()}
               >
                 Voltar
               </Button>

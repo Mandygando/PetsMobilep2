@@ -67,11 +67,6 @@ export default function FormPets({ navigation, route }) {
 
       await AsyncStorage.setItem('pets', JSON.stringify(petsStorage));
 
-      Toast.show({
-        type: 'success',
-        text1: 'Pet salvo com sucesso!',
-      });
-
       // Chame a função onPetUpdated diretamente
       if (onPetUpdated) {
         await onPetUpdated();

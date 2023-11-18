@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { Card, FAB, IconButton, Text } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimatedDelete from '../../components/AnimatedDelete';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Importe o componente Icon
 
 export default function ListaClientes({ navigation }) {
   const [clientes, setClientes] = useState([]);
@@ -49,11 +50,18 @@ export default function ListaClientes({ navigation }) {
               <Text style={styles.cardTitle}>{item.nome}</Text>
               <Text>{`Nome do Pet: ${item.nomePet}`}</Text>
               <Text>{`CPF: ${item.cpf}`}</Text>
+              <Text>{`Telefone: ${item.telefone}`}</Text>
               <Text>{`Endereço: ${item.endereco || ''}`}</Text>
             </Card.Content>
             <Card.Actions>
-              <IconButton icon="pencil" onPress={() => navigation.navigate('FormClientes', { acaoTipo: 'editar', cliente: item, onClienteUpdated })} />
-              <IconButton icon="delete" color="#FF0000" onPress={() => excluirCliente(item)} />
+              <IconButton
+                icon="pencil"
+                onPress={() => navigation.navigate('FormClientes', { acaoTipo: 'editar', cliente: item, onClienteUpdated })}
+              />
+              <IconButton
+                icon={() => <Icon name="delete" size={24} color="#FF0000" />} // Utilize o Icon do react-native-vector-icons
+                onPress={() => excluirCliente(item)}
+              />
             </Card.Actions>
           </Card>
         )}
@@ -94,4 +102,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#008000',
   },
 });
-
