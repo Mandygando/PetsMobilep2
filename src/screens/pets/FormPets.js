@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function FormPets({ navigation, route }) {
-  const { acaoTipo, pet: petAntigo, onPetUpdated } = route.params;
+  const { acaoTipo, pet: petAntigo } = route.params;
   const [imagem, setImagem] = useState(null);
   const [formData, setFormData] = useState({
     nome: '',
@@ -29,6 +29,19 @@ export default function FormPets({ navigation, route }) {
       setImagem(petAntigo.imagem);
     }
   }, [petAntigo]);
+
+  useEffect(() => {
+    const onPetUpdated = () => {
+      Toast.show({
+        type: 'success',
+        text1: 'Pet atualizado com sucesso!',
+      });
+    };
+
+    navigation.setOptions({
+      onPetUpdated: onPetUpdated,
+    });
+  }, [navigation]);
 
   const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -66,11 +79,6 @@ export default function FormPets({ navigation, route }) {
       }
 
       await AsyncStorage.setItem('pets', JSON.stringify(petsStorage));
-
-      // Chame a função onPetUpdated diretamente
-      if (onPetUpdated) {
-        await onPetUpdated();
-      }
 
       navigation.goBack();
     } catch (error) {
@@ -229,5 +237,9 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     marginBottom: 20,
+  },
+  scrollViewContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
 });

@@ -1,11 +1,13 @@
+import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
 import { Text, View, StatusBar } from 'react-native';
 import StackClientes from '../screens/clientes/StackClientes';
 import StackPets from '../screens/pets/StackPets';
 import StackAdocao from '../screens/adocao/StackAdocao';
 import StackPetshops from '../screens/petshop/StackPetshops';
+import StackVeterinarios from '../screens/veterinario/StackVeterinarios';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -26,14 +28,16 @@ export default function App() {
             tabBarIcon: ({ color, size }) => {
               let iconName;
 
-              if (route.name === 'StackPets') {
+              if (route.name === 'Pets') {
                 iconName = 'paw';
-              } else if (route.name === 'StackAdocao') {
+              } else if (route.name === 'Adoção') {
                 iconName = 'heart';
-              } else if (route.name === 'StackPetshops') {
+              } else if (route.name === 'Petshop') {
                 iconName = 'md-paw';
-              } else if (route.name === 'StackClientes') { // Adicione esta condição
-                iconName = 'person'; // Troque pelo ícone desejado para clientes
+              } else if (route.name === 'Clientes') {
+                iconName = 'person';
+              } else if (route.name === 'Veterinários') { 
+                iconName = 'md-medkit'; 
               }
 
               return <Ionicons name={iconName} size={size} color={color} />;
@@ -89,13 +93,28 @@ export default function App() {
               headerTintColor: '#FFFFFF',
             }}
           />
-           <Tab.Screen
-            name="Petshop" // Adicione esta rota
+          <Tab.Screen
+            name="Petshop"
             component={StackPetshops}
             options={{
               tabBarLabel: 'Petshop',
               tabBarIcon: ({ focused, color, size }) => (
                 <CustomTabBarLabel focused={focused} label="Petshop" iconName="md-paw" />
+              ),
+              headerStyle: {
+                backgroundColor: '#07024d',
+              },
+              headerTitleAlign: 'center',
+              headerTintColor: '#FFFFFF',
+            }}
+          />
+          <Tab.Screen
+            name="Veterinários" // Adicione esta rota
+            component={StackVeterinarios}
+            options={{
+              tabBarLabel: 'Veterinários',
+              tabBarIcon: ({ focused, color, size }) => (
+                <CustomTabBarLabel focused={focused} label="Veterinário" iconName="md-medkit" />
               ),
               headerStyle: {
                 backgroundColor: '#07024d',

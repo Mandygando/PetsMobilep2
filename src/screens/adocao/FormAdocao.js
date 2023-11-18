@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Image } from 'react-native';
+import { StyleSheet, View, ScrollView, Image } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import { Formik } from 'formik';
 import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
-import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
+import { TextInputMask } from 'react-native-masked-text';
 
 export default function FormAdocao({ navigation, route }) {
   const { acaoTipo, pet: petAntigo } = route.params;
@@ -31,7 +31,7 @@ export default function FormAdocao({ navigation, route }) {
         idade: petAntigo.idade ? petAntigo.idade.toString() : '',
       }));
       setImagem(petAntigo.imagem);
-      setFormReady(true); // Marcar o formulário como pronto após a atualização dos dados
+      setFormReady(true);
     }
   }, [petAntigo]);
 
@@ -77,7 +77,6 @@ export default function FormAdocao({ navigation, route }) {
 
       await AsyncStorage.setItem('petsAdocao', JSON.stringify(petsStorage));
 
-      // Chame a função onPetAdotado diretamente
       if (route.params?.onPetAdotado) {
         await route.params.onPetAdotado();
       }
@@ -93,107 +92,111 @@ export default function FormAdocao({ navigation, route }) {
     }
   };
 
-
   return (
-    <View style={styles.container}>
-      <Text variant="titleLarge" style={styles.title}>
-        {acaoTipo === 'editar' ? 'Editar Pet' : 'Adicionar Pet'}
-      </Text>
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.container}>
+        <Text variant="titleLarge" style={styles.title}>
+          {acaoTipo === 'editar' ? 'Editar Pet' : 'Adicionar Pet'}
+        </Text>
 
-      <Formik
-        initialValues={formData}
-        validationSchema={validationSchema}
-        onSubmit={(values) => {
-          salvar(values);
-        }}
-        enableReinitialize={true} 
-      >
-        {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
-          <>
-            <Button
-              style={[styles.button, { backgroundColor: '#bfaee3', width: '80%', alignSelf: 'center' }]}
-              labelStyle={{ color: '#FFFFFF' }}
-              onPress={handlePickImage}
-            >
-              Escolher Imagem
-            </Button>
-
-            {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
-
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label="Nome"
-                value={values.nome}
-                onChangeText={handleChange('nome')}
-                onBlur={handleBlur('nome')}
-                error={errors.nome ? true : false}
-              />
-              {touched.nome && errors.nome && (
-                <Text style={{ color: 'red', textAlign: 'center' }}>{errors.nome}</Text>
-              )}
-
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label="Raça"
-                value={values.raca}
-                onChangeText={handleChange('raca')}
-                onBlur={handleBlur('raca')}
-                error={errors.raca ? true : false}
-              />
-              {touched.raca && errors.raca && (
-                <Text style={{ color: 'red', textAlign: 'center' }}>{errors.raca}</Text>
-              )}
-
-              <TextInput
-                style={styles.input}
-                mode="outlined"
-                label="Idade"
-                value={values.idade}
-                onChangeText={handleChange('idade')}
-                onBlur={handleBlur('idade')}
-                keyboardType="numeric"
-                error={errors.idade ? true : false}
-              />
-              {touched.idade && errors.idade && (
-                <Text style={{ color: 'red', textAlign: 'center' }}>{errors.idade}</Text>
-              )}
-            </View>
-
-            <View style={styles.buttonContainer}>
+        <Formik
+          initialValues={formData}
+          validationSchema={validationSchema}
+          onSubmit={(values) => {
+            salvar(values);
+          }}
+          enableReinitialize={true}
+        >
+          {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
+            <>
               <Button
-                style={[styles.button, { backgroundColor: '#5fa0c8' }]}
+                style={[styles.button, { backgroundColor: '#bfaee3', width: '80%', alignSelf: 'center' }]}
                 labelStyle={{ color: '#FFFFFF' }}
-                onPress={() => navigation.goBack()}
-                icon={({ color, size }) => (
-                  <MaterialIcons name="arrow-back" color="#FFFFFF" size={size} />
-                )}
-                mode="contained-tonal"
+                onPress={handlePickImage}
               >
-                Voltar
+                Escolher Imagem
               </Button>
 
-              <Button
-                style={[styles.button, { backgroundColor: '#008000' }]}
-                icon={({ color, size }) => (
-                  <MaterialIcons name="save" color={color} size={size} />
+              {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
+
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  mode="outlined"
+                  label="Nome"
+                  value={values.nome}
+                  onChangeText={handleChange('nome')}
+                  onBlur={handleBlur('nome')}
+                  error={touched.nome && errors.nome ? true : false}
+                />
+                {touched.nome && errors.nome && (
+                  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.nome}</Text>
                 )}
-                mode="contained"
-                onPress={handleSubmit}
-              >
-                Salvar
-              </Button>
-            </View>
-          </>
-        )}
-      </Formik>
-    </View>
+
+                <TextInput
+                  style={styles.input}
+                  mode="outlined"
+                  label="Raça"
+                  value={values.raca}
+                  onChangeText={handleChange('raca')}
+                  onBlur={handleBlur('raca')}
+                  error={touched.raca ? true : false}
+                />
+                {touched.raca && errors.raca && (
+                  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.raca}</Text>
+                )}
+
+                <TextInput
+                  style={styles.input}
+                  mode="outlined"
+                  label="Idade"
+                  value={values.idade}
+                  onChangeText={handleChange('idade')}
+                  onBlur={handleBlur('idade')}
+                  keyboardType="numeric"
+                  error={touched.idade ? true : false}
+                />
+                {touched.idade && errors.idade && (
+                  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.idade}</Text>
+                )}
+              </View>
+
+              <View style={styles.buttonContainer}>
+                <Button
+                  style={[styles.button, { backgroundColor: '#5fa0c8' }]}
+                  labelStyle={{ color: '#FFFFFF' }}
+                  onPress={() => navigation.goBack()}
+                  icon={({ color, size }) => (
+                    <MaterialIcons name="arrow-back" color="#FFFFFF" size={size} />
+                  )}
+                  mode="contained-tonal"
+                >
+                  Voltar
+                </Button>
+
+                <Button
+                  style={[styles.button, { backgroundColor: '#008000' }]}
+                  icon={({ color, size }) => (
+                    <MaterialIcons name="save" color={color} size={size} />
+                  )}
+                  mode="contained"
+                  onPress={handleSubmit}
+                >
+                  Salvar
+                </Button>
+              </View>
+            </>
+          )}
+        </Formik>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollViewContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
