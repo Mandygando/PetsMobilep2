@@ -6,6 +6,7 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { TextInputMask } from 'react-native-masked-text';
 
 export default function FormAdocao({ navigation, route }) {
@@ -120,45 +121,40 @@ export default function FormAdocao({ navigation, route }) {
               {imagem && <Image source={{ uri: imagem }} style={styles.imagem} />}
 
               <View style={styles.inputContainer}>
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label="Nome"
-                  value={values.nome}
-                  onChangeText={handleChange('nome')}
-                  onBlur={handleBlur('nome')}
-                  error={touched.nome && errors.nome ? true : false}
-                />
-                {touched.nome && errors.nome && (
-                  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.nome}</Text>
-                )}
+              <TextInput
+  style={[styles.input, touched.nome && errors.nome && styles.errorInput]}
+  mode="outlined"
+  label="Nome"
+  value={values.nome}
+  onChangeText={handleChange('nome')}
+/>
+{touched.nome && errors.nome && (
+  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.nome}</Text>
+)}
 
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label="Raça"
-                  value={values.raca}
-                  onChangeText={handleChange('raca')}
-                  onBlur={handleBlur('raca')}
-                  error={touched.raca ? true : false}
-                />
-                {touched.raca && errors.raca && (
-                  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.raca}</Text>
-                )}
+<TextInput
+  style={[styles.input, touched.raca && errors.raca && styles.errorInput]}
+  mode="outlined"
+  label="Raça"
+  value={values.raca}
+  onChangeText={handleChange('raca')}  // Adicione esta linha
+/>
+{touched.raca && errors.raca && (
+  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.raca}</Text>
+)}
 
-                <TextInput
-                  style={styles.input}
-                  mode="outlined"
-                  label="Idade"
-                  value={values.idade}
-                  onChangeText={handleChange('idade')}
-                  onBlur={handleBlur('idade')}
-                  keyboardType="numeric"
-                  error={touched.idade ? true : false}
-                />
-                {touched.idade && errors.idade && (
-                  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.idade}</Text>
-                )}
+<TextInput
+  style={[styles.input, touched.idade && errors.idade && styles.errorInput]}
+  mode="outlined"
+  label="Idade"
+  value={values.idade}
+  onChangeText={handleChange('idade')}
+  keyboardType="numeric"
+  onBlur={handleBlur('idade')}  // Adicione esta linha
+/>
+{touched.idade && errors.idade && (
+  <Text style={{ color: 'red', textAlign: 'center', marginTop: -15 }}>{errors.idade}</Text>
+)}
               </View>
 
               <View style={styles.buttonContainer}>

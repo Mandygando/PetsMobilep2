@@ -1,14 +1,16 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Image, Text, TouchableOpacity, View, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, View, StatusBar } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import StackClientes from '../screens/clientes/StackClientes';
 import StackPets from '../screens/pets/StackPets';
 import StackAdocao from '../screens/adocao/StackAdocao';
 import StackPetshops from '../screens/petshop/StackPetshops';
 import StackVeterinarios from '../screens/veterinario/StackVeterinarios';
 
-
+const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const CustomTabBarLabel = ({ focused, label, iconName }) => (
@@ -18,12 +20,60 @@ const CustomTabBarLabel = ({ focused, label, iconName }) => (
   </View>
 );
 
-export default function App() {
-  return (
-    <>
-      <StatusBar hidden={false} />
-      <View style={{ flex: 1, backgroundColor: '#07024d', paddingTop: Platform.OS === 'android' ? 10 : 0 }}>
-        <Tab.Navigator
+const WelcomeScreen = ({ navigation }) => (
+  <View style={styles.container}>
+    <Image
+      source={{ uri: 'https://i.pinimg.com/736x/6a/c4/33/6ac433e06f5c86052c298974c40c5903.jpg' }}
+      style={styles.backgroundImage}
+    />
+    <Text style={styles.welcomeText}>
+      Bem-vindo ao Girapets
+    </Text>
+    <Text style={styles.descriptionText}>
+      No mundo acelerado de hoje, a vida com animais de estimação é uma experiência enriquecedora, mas encontrar os serviços certos de pet shop e, mais importante ainda, o companheiro perfeito para adoção, pode ser uma tarefa desafiadora. Aqui você encontra isso e muito mais.
+    </Text>
+    <TouchableOpacity
+      style={styles.continueButton}
+      onPress={() => navigation.navigate('Main')}
+    >
+      <Ionicons name="arrow-forward" size={24} color="#FFFFFF" style={styles.buttonIcon} />
+      <Text style={styles.buttonText}>Continue</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+const PetsScreen = () => (
+  <View style={styles.screenContainer}>
+    <Text style={styles.screenText}>Página Pets</Text>
+  </View>
+);
+
+const AdocaoScreen = () => (
+  <View style={styles.screenContainer}>
+    <Text style={styles.screenText}>Página Adoção</Text>
+  </View>
+);
+
+const ClientesScreen = () => (
+  <View style={styles.screenContainer}>
+    <Text style={styles.screenText}>Página Clientes</Text>
+  </View>
+);
+
+const PetshopScreen = () => (
+  <View style={styles.screenContainer}>
+    <Text style={styles.screenText}>Página Petshop</Text>
+  </View>
+);
+
+const VeterinariosScreen = () => (
+  <View style={styles.screenContainer}>
+    <Text style={styles.screenText}>Página Veterinários</Text>
+  </View>
+);
+
+const MainNavigator = () => (
+  <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarIcon: ({ color, size }) => {
               let iconName;
@@ -124,7 +174,86 @@ export default function App() {
             }}
           />
         </Tab.Navigator>
-      </View>
-    </>
-  );
-}
+);
+
+const App = () => (
+  <NavigationContainer>
+     <View style={{ flex: 1 }}>
+      <Stack.Navigator
+        initialRouteName="Welcome"
+        screenOptions={{
+          headerShown: false,
+          
+        }}
+      >
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="Main" component={MainNavigator} />
+      </Stack.Navigator>
+    </View>
+  </NavigationContainer>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#07024d',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    position: 'absolute',
+  },
+  welcomeText: {
+    color: '#FFFFFF',
+    fontSize: 35,
+    fontWeight: 'bold',
+    marginBottom: 60,
+    marginTop: -40,
+    textAlign: 'center',
+    textShadowColor: '#000000',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 2,
+  },
+  descriptionText: {
+    color: '#FFFFFF',
+    fontSize: 23,
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 25,
+    textShadowColor: '#000000',
+    textShadowOffset: { width: 3, height: 3 },
+    textShadowRadius: 6,
+  },
+  continueButton: {
+    backgroundColor: '#FF6347',
+    borderRadius: 50,
+    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+  },
+  buttonIcon: {
+    marginRight: 10,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+  },
+  screenContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#07024d',
+  },
+  screenText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+  },
+});
+
+export default App;

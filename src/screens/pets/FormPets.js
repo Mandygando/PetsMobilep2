@@ -23,7 +23,7 @@ export default function FormPets({ navigation, route }) {
       setFormData({
         nome: petAntigo.nome,
         raca: petAntigo.raca,
-        idade: petAntigo.idade.toString(),
+        idade: petAntigo.idade ? petAntigo.idade.toString() : '',
         tutor: petAntigo.tutor || '', // Preenchendo o campo tutor se existir no petAntigo
       });
       setImagem(petAntigo.imagem);
@@ -51,8 +51,8 @@ export default function FormPets({ navigation, route }) {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setImagem(result.assets[0].uri);
+    if (!result.cancelled) {
+      setImagem(result.uri);
     }
   };
 
