@@ -1,14 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { Button } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const AnimatedDeleteAdocao = ({ onDelete, onShowLocationDetails }) => {
+  // Refs para armazenar valores animados
   const translateY = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  
+  // Estado para controlar a visibilidade do componente
   const [visible, setVisible] = useState(true);
 
+  // Efeito useEffect para realizar animações ao montar o componente
   useEffect(() => {
+    // Animando translateY e opacity simultaneamente
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: 1,
@@ -25,6 +29,7 @@ const AnimatedDeleteAdocao = ({ onDelete, onShowLocationDetails }) => {
     ]).start();
   }, []);
 
+  // Estilo do contêiner, incluindo transformações animadas
   const containerStyle = [
     styles.container,
     {
@@ -41,6 +46,7 @@ const AnimatedDeleteAdocao = ({ onDelete, onShowLocationDetails }) => {
   ];
 
   return (
+    // Renderiza o componente apenas se for visível
     visible && (
       <Animated.View style={containerStyle}>
         <Text style={styles.text}>Obrigado por adotar um animal! 🤍</Text>
@@ -54,6 +60,7 @@ const AnimatedDeleteAdocao = ({ onDelete, onShowLocationDetails }) => {
           style={styles.closeButton}
           labelStyle={{ color: '#FFFFFF' }}
           onPress={() => {
+            // Oculta o componente e executa a animação de fade out(O botão "Fechar" oculta o componente e executa uma animação de fade out antes de chamar a função onDelete)
             setVisible(false);
             Animated.timing(opacity, {
               toValue: 0,

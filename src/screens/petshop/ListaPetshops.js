@@ -4,7 +4,7 @@ import { Card, FAB, IconButton, Text } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AnimatedDelete from '../../components/AnimatedDelete';
-import { useFocusEffect } from '@react-navigation/native';  // Adicionado import
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ListaPetshops({ navigation }) {
   const [petshops, setPetshops] = useState([]);
@@ -14,12 +14,14 @@ export default function ListaPetshops({ navigation }) {
     loadPetshops();
   }, []);
 
+  // Efeito para carregar os pet shops sempre que a tela ganha foco
   useFocusEffect(
     React.useCallback(() => {
-      loadPetshops();  // Atualizado para chamar loadPetshops() quando a tela está focada
+      loadPetshops();
     }, [])
   );
 
+  // Função para carregar os pet shops do AsyncStorage
   async function loadPetshops() {
     try {
       const response = await AsyncStorage.getItem('petshops');
@@ -34,6 +36,7 @@ export default function ListaPetshops({ navigation }) {
     const novosPetshops = petshops.filter((p) => p.id !== petshop.id);
 
     try {
+      // Atualiza o AsyncStorage após a exclusão
       await AsyncStorage.setItem('petshops', JSON.stringify(novosPetshops));
       setPetshops(novosPetshops);
       setShowDeleteAnimation(true);
@@ -42,6 +45,7 @@ export default function ListaPetshops({ navigation }) {
     }
   };
 
+  // Função para ocultar a animação de exclusão
   const hideDeleteAnimation = () => {
     setShowDeleteAnimation(false);
   };
@@ -58,6 +62,7 @@ export default function ListaPetshops({ navigation }) {
               <Text>{`Produtos: ${item.produtos}`}</Text>
               <Text>{`Serviços: ${item.servicos}`}</Text>
             </Card.Content>
+
             <Card.Actions>
               <IconButton
                 icon="pencil"
@@ -81,6 +86,7 @@ export default function ListaPetshops({ navigation }) {
         onPress={() => navigation.navigate('FormPetshop', { acaoTipo: 'adicionar', onPetShopUpdated: loadPetshops })}
       />
 
+      {/* Componente animação de exclusão */}
       {showDeleteAnimation && <AnimatedDelete onDelete={hideDeleteAnimation} />}
     </View>
   );

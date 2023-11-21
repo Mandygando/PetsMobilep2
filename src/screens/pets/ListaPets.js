@@ -1,3 +1,4 @@
+// Importação de módulos e componentes necessários
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { Card, FAB, IconButton, Text } from 'react-native-paper';
@@ -6,6 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import AnimatedDelete from '../../components/AnimatedDelete';
 
 export default function ListaPets({ navigation }) {
+
   const [pets, setPets] = useState([]);
   const [showDeleteAnimation, setShowDeleteAnimation] = useState(false);
 
@@ -13,9 +15,11 @@ export default function ListaPets({ navigation }) {
     loadPets();
   }, []);
 
+  // Função assíncrona para carregar a lista de pets do AsyncStorage
   async function loadPets() {
     try {
       const response = await AsyncStorage.getItem('pets');
+      // Se houver dados salvos, converte de JSON para objeto; senão, inicializa com array vazio
       const petsStorage = response ? JSON.parse(response) : [];
       setPets(petsStorage);
     } catch (error) {
@@ -24,10 +28,11 @@ export default function ListaPets({ navigation }) {
   }
 
   const excluirPet = async (pet) => {
+    // Filtra os pets, removendo o que possui o mesmo ID do pet a ser excluído
     const novosPets = pets.filter((p) => p.id !== pet.id);
-
     try {
       await AsyncStorage.setItem('pets', JSON.stringify(novosPets));
+      // Atualiza o estado local 'pets' e ativa a animação de exclusão
       setPets(novosPets);
       setShowDeleteAnimation(true);
     } catch (error) {
@@ -36,9 +41,11 @@ export default function ListaPets({ navigation }) {
   };
 
   const onPetUpdated = () => {
-    loadPets(); // Atualiza a lista de pets após uma edição ou adição
+    // Chama a função de carregar pets para atualizar a lista
+    loadPets();
   };
 
+  // Função para esconder a animação de exclusão
   const hideDeleteAnimation = () => {
     setShowDeleteAnimation(false);
   };
@@ -50,6 +57,7 @@ export default function ListaPets({ navigation }) {
         keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
         renderItem={({ item }) => (
           <Card style={styles.card}>
+
             <Card.Cover source={{ uri: item.imagem }} />
             <Card.Content>
               <Text style={styles.cardTitle}>{item.nome}</Text>
@@ -57,6 +65,8 @@ export default function ListaPets({ navigation }) {
               <Text>{`Idade: ${item.idade} anos`}</Text>
               <Text>{`Tutor: ${item.tutor || ''}`}</Text>
             </Card.Content>
+
+            {/* Botões de edição e exclusão para cada pet */}
             <Card.Actions>
               <IconButton icon="pencil" onPress={() => navigation.navigate('FormPets', { acaoTipo: 'editar', pet: item, onPetUpdated })} />
               <IconButton icon={() => <Icon name="delete" size={24} color="#FF0000" />} onPress={() => excluirPet(item)} />
@@ -72,6 +82,7 @@ export default function ListaPets({ navigation }) {
         onPress={() => navigation.navigate('FormPets', { acaoTipo: 'adicionar', onPetUpdated })}
       />
 
+      {/* Renderiza a animação de exclusão */}
       {showDeleteAnimation && <AnimatedDelete onDelete={hideDeleteAnimation} />}
     </View>
   );
@@ -95,8 +106,8 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     margin: 3,
-    left: 0, // Mova para o canto superior esquerdo definindo 'left' como 0
-    top: 0, // Mova para o canto superior definindo 'top' como 0
+    left: 0,
+    top: 0,
     backgroundColor: '#008000', // Cor de fundo do botão
   },
 });

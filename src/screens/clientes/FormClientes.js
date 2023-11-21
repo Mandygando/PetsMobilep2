@@ -1,3 +1,4 @@
+// Importa os módulos e bibliotecas necessárias para o componente
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
@@ -6,7 +7,6 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { TextInputMask } from 'react-native-masked-text';
 
 export default function FormClientes({ navigation, route }) {
   const { acaoTipo, cliente: clienteAntigo, onClienteUpdated } = route.params;
@@ -19,6 +19,7 @@ export default function FormClientes({ navigation, route }) {
     endereco: '',
   });
 
+  // Efeito para preencher o formulário com dados do cliente antigo, se existirem
   useEffect(() => {
     if (clienteAntigo) {
       setFormData({
@@ -31,6 +32,7 @@ export default function FormClientes({ navigation, route }) {
     }
   }, [clienteAntigo]);
 
+  // Esquema de validação para os campos do formulário
   const validationSchema = Yup.object().shape({
     nome: Yup.string().required('Campo obrigatório!'),
     nomePet: Yup.string().required('Campo obrigatório!'),
@@ -39,12 +41,14 @@ export default function FormClientes({ navigation, route }) {
     endereco: Yup.string().required('Campo obrigatório!'),
   });
 
+  // Função para formatar o CPF no formato desejado
   const formatarCPF = (texto) => {
     const textoLimpo = texto.replace(/[^0-9]/g, '');
     const textoFormatado = textoLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     return textoFormatado;
   };
 
+  // Função para formatar o telefone no formato desejado
   const formatarTelefone = (texto) => {
     const textoLimpo = texto.replace(/[^0-9]/g, '');
     const textoFormatado = textoLimpo.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3');
@@ -53,9 +57,11 @@ export default function FormClientes({ navigation, route }) {
 
   const salvar = async (novoCliente) => {
     try {
+      // Obtém e parseia os clientes já salvos ou inicializa um array vazio
       let clientesArmazenados = await AsyncStorage.getItem('clientes');
       clientesArmazenados = clientesArmazenados ? JSON.parse(clientesArmazenados) : [];
 
+      // Edita ou adiciona o novo cliente conforme a ação
       if (acaoTipo === 'editar') {
         const indice = clientesArmazenados.findIndex((cliente) => cliente.id === clienteAntigo.id);
         clientesArmazenados[indice] = novoCliente;
@@ -63,9 +69,10 @@ export default function FormClientes({ navigation, route }) {
         novoCliente.id = Date.now();
         clientesArmazenados.push(novoCliente);
       }
-
+      // Salva os clientes de volta no armazenamento local
       await AsyncStorage.setItem('clientes', JSON.stringify(clientesArmazenados));
 
+      // Chama a função de callback se fornecida na rota
       if (onClienteUpdated) {
         await onClienteUpdated();
       }
@@ -87,7 +94,6 @@ export default function FormClientes({ navigation, route }) {
         <Text variant="titleLarge" style={styles.titulo}>
           {acaoTipo === 'editar' ? 'Editar Cliente' : 'Adicionar Cliente'}
         </Text>
-
         <Formik
           initialValues={formData}
           validationSchema={validationSchema}
@@ -167,30 +173,31 @@ export default function FormClientes({ navigation, route }) {
                 )}
               </View>
 
+              {/* Botões de navegação */}
               <View style={styles.containerBotoes}>
-  <Button
-    style={[styles.button, { backgroundColor: '#5fa0c8', marginVertical: 30 }]}
-    labelStyle={{ color: '#FFFFFF' }}
-    icon={({ color, size }) => (
-      <MaterialIcons name="arrow-back" color="#FFFFFF" size={size} />
-    )}
-    mode="contained-tonal"
-    onPress={() => navigation.goBack()}
-  >
-    Voltar
-  </Button>
+                <Button
+                  style={[styles.button, { backgroundColor: '#5fa0c8', marginVertical: 30 }]}
+                  labelStyle={{ color: '#FFFFFF' }}
+                  icon={({ color, size }) => (
+                    <MaterialIcons name="arrow-back" color="#FFFFFF" size={size} />
+                  )}
+                  mode="contained-tonal"
+                  onPress={() => navigation.goBack()}
+                >
+                  Voltar
+                </Button>
 
-  <Button
-    style={[styles.button, { backgroundColor: '#008000', marginVertical: 30 }]}
-    icon={({ color, size }) => (
-      <MaterialIcons name="save" color={color} size={size} />
-    )}
-    mode="contained"
-    onPress={handleSubmit}
-  >
-    Salvar
-  </Button>
-</View>
+                <Button
+                  style={[styles.button, { backgroundColor: '#008000', marginVertical: 30 }]}
+                  icon={({ color, size }) => (
+                    <MaterialIcons name="save" color={color} size={size} />
+                  )}
+                  mode="contained"
+                  onPress={handleSubmit}
+                >
+                  Salvar
+                </Button>
+              </View>
             </>
           )}
         </Formik>

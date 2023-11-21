@@ -8,16 +8,18 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TextInputMask } from 'react-native-masked-text';
 
 export default function FormVeterinario({ navigation, route }) {
+  // Extrai as propriedades de ação e dados do veterinário da rota
   const { acaoTipo = 'adicionar', veterinario: veterinarioAntigo } = route.params || {};
 
+  // Estados para armazenar serviços selecionados, dados do formulário
   const [selectedServices, setSelectedServices] = useState(veterinarioAntigo?.servicos || []);
-
   const [formData, setFormData] = useState({
     nome: veterinarioAntigo?.nome || '',
     horario: veterinarioAntigo?.horario || '',
     telefone: veterinarioAntigo?.telefone || '',
   });
 
+  // Efeito para atualizar os estados ao editar um veterinário existente
   useEffect(() => {
     if (veterinarioAntigo) {
       setFormData((prev) => ({
@@ -30,6 +32,7 @@ export default function FormVeterinario({ navigation, route }) {
     }
   }, [veterinarioAntigo]);
 
+  // Esquema de validação Yup para os campos do formulário
   const validationSchema = Yup.object().shape({
     nome: Yup.string().required('Campo obrigatório!'),
     horario: Yup.string().required('Campo obrigatório!'),
@@ -38,6 +41,7 @@ export default function FormVeterinario({ navigation, route }) {
 
   const salvar = async (values) => {
     try {
+      // Cria um objeto novoVeterinario com os dados do formulário e serviços selecionados
       const novoVeterinario = {
         id: veterinarioAntigo ? veterinarioAntigo.id : Date.now(),
         nome: values.nome,
@@ -46,6 +50,7 @@ export default function FormVeterinario({ navigation, route }) {
         servicos: selectedServices,
       };
 
+      // Obtém os veterinários armazenados e adiciona o novo veterinário
       let veterinariosStorage = await AsyncStorage.getItem('veterinarios');
       veterinariosStorage = veterinariosStorage ? JSON.parse(veterinariosStorage) : [];
 
@@ -56,8 +61,9 @@ export default function FormVeterinario({ navigation, route }) {
         veterinariosStorage.push(novoVeterinario);
       }
 
+      // Salva os veterinários de volta no AsyncStorage
       await AsyncStorage.setItem('veterinarios', JSON.stringify(veterinariosStorage));
-
+      // Chama a função de atualização se fornecida nas propriedades de rota
       if (route.params?.onVeterinarioUpdated) {
         await route.params.onVeterinarioUpdated();
       }
@@ -69,12 +75,12 @@ export default function FormVeterinario({ navigation, route }) {
     }
   };
 
+
   return (
     <View style={styles.container}>
       <Text variant="titleLarge" style={{ ...styles.title, color: '#000000' }}>
         {acaoTipo === 'editar' ? 'Editando' : 'Adicionar Veterinário'}
       </Text>
-
       <Formik
         initialValues={formData}
         validationSchema={validationSchema}
@@ -93,7 +99,7 @@ export default function FormVeterinario({ navigation, route }) {
               error={touched.nome && errors.nome}
             />
 
-            {/* Utilizando TextInputMask para aplicar a máscara de horário */}
+            {/* Utiliza TextInputMask para aplicar a máscara de horário */}
             <TextInputMask
               style={styles.input}
               type={'datetime'}
@@ -109,7 +115,6 @@ export default function FormVeterinario({ navigation, route }) {
               error={touched.horario && errors.horario}
             />
 
-            {/* Adicionando o campo de telefone */}
             <TextInput
               style={styles.input}
               mode="outlined"
@@ -121,7 +126,7 @@ export default function FormVeterinario({ navigation, route }) {
               error={touched.telefone && errors.telefone}
             />
 
-            {/* Checkbox para serviços */}
+            {/* Checkbox para seleção de serviços */}
             <View style={styles.input}>
               <Text>Serviços</Text>
               {['Vacinação', 'Castração', 'Consulta', 'Outros'].map((service, index) => (

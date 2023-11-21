@@ -25,7 +25,6 @@ const ListaAdocao = ({ navigation }) => {
   const [pets, setPets] = useState([]);
   const [showDeleteAnimation, setShowDeleteAnimation] = useState(false);
   const [deletedPet, setDeletedPet] = useState(null);
-  const [showLocationModal, setShowLocationModal] = useState(false);
 
   useEffect(() => {
     loadPets();
@@ -55,21 +54,15 @@ const ListaAdocao = ({ navigation }) => {
   };
 
   const onPetAdotado = () => {
-    loadPets(); // Atualiza a lista de pets após uma edição ou adição
+    loadPets();
   };
 
+  // Função para esconder a animação de exclusão
   const hideDeleteAnimation = () => {
     setShowDeleteAnimation(false);
     setDeletedPet(null);
   };
 
-  const showLocationDetails = () => {
-    setShowLocationModal(true);
-  };
-
-  const hideLocationModal = () => {
-    setShowLocationModal(false);
-  };
 
   return (
     <Provider>
@@ -93,21 +86,13 @@ const ListaAdocao = ({ navigation }) => {
           onPress={() => navigation.navigate('FormAdocao', { acaoTipo: 'adicionar', onPetAdotado })}
         />
 
+        {/* Componente de animação para exclusão */}
         {showDeleteAnimation && (
           <AnimatedDeleteAdocao
             onDelete={hideDeleteAnimation}
-            onShowLocationDetails={showLocationDetails}
             pet={deletedPet}
           />
         )}
-
-        <Portal>
-          <Modal visible={showLocationModal} onDismiss={hideLocationModal}>
-            <View style={styles.locationModal}>
-              <Button onPress={hideLocationModal}>Fechar</Button>
-            </View>
-          </Modal>
-        </Portal>
       </View>
     </Provider>
   );

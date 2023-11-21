@@ -3,9 +3,10 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { Card, FAB, IconButton, Text } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimatedDelete from '../../components/AnimatedDelete';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Importe o componente Icon
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 
 export default function ListaClientes({ navigation }) {
+  // Estado para armazenar a lista de clientes e controlar a animação de exclusão
   const [clientes, setClientes] = useState([]);
   const [showDeleteAnimation, setShowDeleteAnimation] = useState(false);
 
@@ -13,6 +14,7 @@ export default function ListaClientes({ navigation }) {
     loadClientes();
   }, []);
 
+  // Função assíncrona para carregar os clientes do AsyncStorage
   async function loadClientes() {
     try {
       const response = await AsyncStorage.getItem('clientes');
@@ -23,6 +25,7 @@ export default function ListaClientes({ navigation }) {
     }
   }
 
+  // Função para excluir um cliente da lista
   const excluirCliente = async (cliente) => {
     const novosClientes = clientes.filter((c) => c.id !== cliente.id);
 
@@ -45,6 +48,7 @@ export default function ListaClientes({ navigation }) {
         data={clientes}
         keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
         renderItem={({ item }) => (
+          // Card para exibir informações de cada cliente
           <Card style={styles.card}>
             <Card.Content>
               <Text style={styles.cardTitle}>{item.nome}</Text>
@@ -59,14 +63,13 @@ export default function ListaClientes({ navigation }) {
                 onPress={() => navigation.navigate('FormClientes', { acaoTipo: 'editar', cliente: item, onClienteUpdated })}
               />
               <IconButton
-                icon={() => <Icon name="delete" size={24} color="#FF0000" />} // Utilize o Icon do react-native-vector-icons
+                icon={() => <Icon name="delete" size={24} color="#FF0000" />} // Ícone de exclusão
                 onPress={() => excluirCliente(item)}
               />
             </Card.Actions>
           </Card>
         )}
       />
-
       <FAB
         style={styles.fab}
         icon="plus"
@@ -74,6 +77,7 @@ export default function ListaClientes({ navigation }) {
         onPress={() => navigation.navigate('FormClientes', { acaoTipo: 'adicionar', onClienteUpdated })}
       />
 
+      {/* Animação de exclusão */}
       {showDeleteAnimation && <AnimatedDelete onDelete={() => setShowDeleteAnimation(false)} />}
     </View>
   );

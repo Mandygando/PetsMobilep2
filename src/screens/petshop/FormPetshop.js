@@ -7,15 +7,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function FormPetShop({ navigation, route }) {
+  // Extração de dados da rota ou fornecimento de valores padrão
   const { acaoTipo = 'adicionar', petShop: petShopAntigo } = route.params || {};
 
+  // Estados locais para armazenar serviços, produtos e dados do formulário
   const [selectedServices, setSelectedServices] = useState(petShopAntigo?.servicos || []);
   const [selectedProducts, setSelectedProducts] = useState(petShopAntigo?.produtos || []);
-
   const [formData, setFormData] = useState({
     nome: petShopAntigo?.nome || '',
   });
 
+  // sincroniza o estado local com os dados do petShopAntigo
   useEffect(() => {
     if (petShopAntigo) {
       setFormData((prev) => ({
@@ -27,12 +29,14 @@ export default function FormPetShop({ navigation, route }) {
     }
   }, [petShopAntigo]);
 
+  // validação Yup para os campos do formulário
   const validationSchema = Yup.object().shape({
     nome: Yup.string().required('Campo obrigatório!'),
   });
 
   const salvar = async (values) => {
     try {
+      // Cria um objeto com os dados do novo PetShop
       const novoPetShop = {
         id: petShopAntigo ? petShopAntigo.id : Date.now(),
         nome: values.nome,
@@ -40,9 +44,11 @@ export default function FormPetShop({ navigation, route }) {
         servicos: selectedServices,
       };
 
+      // Obtém os dados do AsyncStorage e converte para objeto ou inicializa um array vazio
       let petshopsStorage = await AsyncStorage.getItem('petshops');
       petshopsStorage = petshopsStorage ? JSON.parse(petshopsStorage) : [];
 
+      // Se for uma edição, substitui o PetShop existente; senão, adiciona um novo
       if (acaoTipo === 'editar') {
         const index = petshopsStorage.findIndex((petshop) => petshop.id === petShopAntigo.id);
         petshopsStorage[index] = novoPetShop;
@@ -51,12 +57,11 @@ export default function FormPetShop({ navigation, route }) {
       }
 
       await AsyncStorage.setItem('petshops', JSON.stringify(petshopsStorage));
-
-      // Chame a função onPetShopUpdated diretamente
       if (route.params?.onPetShopUpdated) {
         await route.params.onPetShopUpdated();
       }
 
+      // Navega de volta à tela anterior
       navigation.goBack();
     } catch (error) {
       console.error('Erro ao salvar PetShop:', error);
@@ -93,6 +98,7 @@ export default function FormPetShop({ navigation, route }) {
               <Text>Serviços</Text>
               {['Banho', 'Tosa', 'Outros'].map((service, index) => (
                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Checkbox para cada serviço */}
                   <Checkbox
                     status={selectedServices.includes(service) ? 'checked' : 'unchecked'}
                     onPress={() => {
@@ -115,6 +121,7 @@ export default function FormPetShop({ navigation, route }) {
               <Text>Produtos</Text>
               {['Ração', 'Shampoo', 'Roupinhas', 'Coleira', 'Bolinha', 'Osso'].map((product, index) => (
                 <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  {/* Checkbox para cada produto */}
                   <Checkbox
                     status={selectedProducts.includes(product) ? 'checked' : 'unchecked'}
                     onPress={() => {
@@ -144,7 +151,6 @@ export default function FormPetShop({ navigation, route }) {
                 Voltar
               </Button>
 
-              {/* Adicionado um espaço horizontal entre os botões */}
               <View style={{ width: 20 }} />
 
               <Button
