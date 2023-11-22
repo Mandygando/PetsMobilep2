@@ -92,7 +92,7 @@ export default function FormVeterinario({ navigation, route }) {
             <TextInput
               style={styles.input}
               mode="outlined"
-              label="Nome do Veterinário"
+              label="Nome"
               value={values.nome}
               onChangeText={handleChange('nome')}
               onBlur={handleBlur('nome')}
@@ -115,14 +115,20 @@ export default function FormVeterinario({ navigation, route }) {
               error={touched.horario && errors.horario}
             />
 
-            <TextInput
+            <TextInputMask
               style={styles.input}
-              mode="outlined"
-              label="Telefone"
+              type={'cel-phone'}
+              options={{
+                maskType: 'BRL',
+                withDDD: true,
+                dddMask: '(99) ',
+              }}
               value={values.telefone}
               onChangeText={handleChange('telefone')}
               onBlur={handleBlur('telefone')}
               keyboardType="phone-pad"
+              customTextInput={TextInput}
+              customTextInputProps={{ mode: 'outlined', label: 'Telefone' }}
               error={touched.telefone && errors.telefone}
             />
 

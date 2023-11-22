@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 import { Formik } from 'formik';
@@ -6,6 +6,7 @@ import Toast from 'react-native-toast-message';
 import * as Yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
+import { TextInputMask } from 'react-native-masked-text';
 
 export default function FormClientes({ navigation, route }) {
   const { acaoTipo, cliente: clienteAntigo, onClienteUpdated } = route.params;
@@ -18,7 +19,7 @@ export default function FormClientes({ navigation, route }) {
     endereco: '',
   });
 
-  // Efeito para preencher o formulário com dados do cliente antigo, se existirem
+  // Atualiza o estado inicial do formulário quando a propriedade clienteAntigo for alterada
   useEffect(() => {
     if (clienteAntigo) {
       setFormData({
@@ -39,20 +40,6 @@ export default function FormClientes({ navigation, route }) {
     telefone: Yup.string().required('Campo obrigatório!').matches(/^\(\d{2}\) \d{1,7}-\d{0,4}$/, 'Telefone inválido'),
     endereco: Yup.string().required('Campo obrigatório!'),
   });
-
-  // Função para formatar o CPF no formato desejado
-  const formatarCPF = (texto) => {
-    const textoLimpo = texto.replace(/[^0-9]/g, '');
-    const textoFormatado = textoLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    return textoFormatado;
-  };
-
-  // Função para formatar o telefone no formato desejado
-  const formatarTelefone = (texto) => {
-    const textoLimpo = texto.replace(/[^0-9]/g, '');
-    const textoFormatado = textoLimpo.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3');
-    return textoFormatado;
-  };
 
   const salvar = async (novoCliente) => {
     try {
@@ -130,27 +117,36 @@ export default function FormClientes({ navigation, route }) {
                   <Text style={styles.textoErro}>{errors.nomePet}</Text>
                 )}
 
-                <TextInput
+                {/* Utiliza TextInputMask para aplicar a máscara de CPF */}
+                <TextInputMask
                   style={styles.input}
-                  mode="outlined"
-                  label="CPF"
-                  value={formatarCPF(values.cpf)}
-                  onChangeText={(texto) => handleChange('cpf')(formatarCPF(texto))}
+                  type={'cpf'}
+                  value={values.cpf}
+                  onChangeText={handleChange('cpf')}
                   onBlur={handleBlur('cpf')}
                   keyboardType="numeric"
+                  customTextInput={TextInput}
+                  customTextInputProps={{ mode: 'outlined', label: 'CPF' }}
                   error={touched.cpf && errors.cpf ? true : false}
                 />
                 {touched.cpf && errors.cpf && (
                   <Text style={styles.textoErro}>{errors.cpf}</Text>
                 )}
 
-                <TextInput
+                {/* Utiliza TextInputMask para aplicar a máscara de telefone */}
+                <TextInputMask
                   style={styles.input}
-                  mode="outlined"
-                  label="Telefone"
-                  value={formatarTelefone(values.telefone)}
-                  onChangeText={(texto) => handleChange('telefone')(formatarTelefone(texto))}
+                  type={'cel-phone'}
+                  options={{
+                    maskType: 'BRL',
+                    withDDD: true,
+                    dddMask: '(99) ',
+                  }}
+                  value={values.telefone}
+                  onChangeText={handleChange('telefone')}
                   onBlur={handleBlur('telefone')}
+                  customTextInput={TextInput}
+                  customTextInputProps={{ mode: 'outlined', label: 'Telefone' }}
                   keyboardType="numeric"
                   error={touched.telefone && errors.telefone ? true : false}
                 />

@@ -1,213 +1,126 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
-import { Button, Text, TextInput, Checkbox } from 'react-native-paper';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import { FlatList, StyleSheet, View, Alert } from 'react-native';
+import { Card, FAB, IconButton, Text } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { TextInputMask } from 'react-native-masked-text';
+import AnimatedDelete from '../../components/AnimatedDelete';
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function FormVeterinario({ navigation, route }) {
-  const { acaoTipo = 'adicionar', veterinario: veterinarioAntigo } = route.params || {};
+export default function ListaVeterinarios({ navigation }) {
+  const [veterinarios, setVeterinarios] = useState([]);
+  const [showDeleteAnimation, setShowDeleteAnimation] = useState(false);
 
-  // Estados para armazenar serviços selecionados, dados do formulário
-  const [selectedServices, setSelectedServices] = useState(veterinarioAntigo?.servicos || []);
-  const [formData, setFormData] = useState({
-    nome: veterinarioAntigo?.nome || '',
-    horario: veterinarioAntigo?.horario || '',
-    telefone: veterinarioAntigo?.telefone || '',
-  });
-
-  // Efeito para atualizar os estados ao editar um veterinário existente
   useEffect(() => {
-    if (veterinarioAntigo) {
-      setFormData((prev) => ({
-        ...prev,
-        nome: veterinarioAntigo.nome || '',
-        horario: veterinarioAntigo.horario || '',
-        telefone: veterinarioAntigo.telefone || '',
-      }));
-      setSelectedServices(veterinarioAntigo.servicos || []);
-    }
-  }, [veterinarioAntigo]);
+    loadVeterinarios();
+  }, []);
 
-  // Esquema de validação Yup para os campos do formulário
-  const validationSchema = Yup.object().shape({
-    nome: Yup.string().required('Campo obrigatório!'),
-    horario: Yup.string().required('Campo obrigatório!'),
-    telefone: Yup.string().required('Campo obrigatório!'),
-  });
+  // Efeito para carregar os veterinários sempre que a tela ganha foco
+  useFocusEffect(
+    React.useCallback(() => {
+      loadVeterinarios();
+    }, [])
+  );
 
-  const salvar = async (values) => {
+  // Função para carregar os veterinários do AsyncStorage
+  async function loadVeterinarios() {
     try {
-      // Cria um objeto novoVeterinario com os dados do formulário e serviços selecionados
-      const novoVeterinario = {
-        id: veterinarioAntigo ? veterinarioAntigo.id : Date.now(),
-        nome: values.nome,
-        horario: values.horario,
-        telefone: values.telefone,
-        servicos: selectedServices,
-      };
-
-      let veterinariosStorage = await AsyncStorage.getItem('veterinarios');
-      veterinariosStorage = veterinariosStorage ? JSON.parse(veterinariosStorage) : [];
-
-      if (acaoTipo === 'editar') {
-        const index = veterinariosStorage.findIndex((vet) => vet.id === veterinarioAntigo.id);
-        veterinariosStorage[index] = novoVeterinario;
-      } else {
-        veterinariosStorage.push(novoVeterinario);
-      }
-
-      // Salva os veterinários de volta no AsyncStorage
-      await AsyncStorage.setItem('veterinarios', JSON.stringify(veterinariosStorage));
-
-      // Chama a função de atualização se fornecida nas propriedades de rota
-      if (route.params?.onVeterinarioUpdated) {
-        await route.params.onVeterinarioUpdated();
-      }
-
-      navigation.goBack();
+      const response = await AsyncStorage.getItem('veterinarios');
+      const veterinariosStorage = response ? JSON.parse(response) : [];
+      setVeterinarios(veterinariosStorage);
     } catch (error) {
-      console.error('Erro ao salvar Veterinário:', error);
-      Alert.alert('Erro ao salvar Veterinário. Tente novamente.');
+      console.error('Erro ao carregar veterinários:', error);
     }
+  }
+
+  const excluirVeterinario = async (veterinario) => {
+    const novosVeterinarios = veterinarios.filter((v) => v.id !== veterinario.id);
+
+    try {
+      // Atualiza o AsyncStorage após a exclusão
+      await AsyncStorage.setItem('veterinarios', JSON.stringify(novosVeterinarios));
+      setVeterinarios(novosVeterinarios);
+      setShowDeleteAnimation(true);
+    } catch (error) {
+      console.error('Erro ao excluir veterinário:', error);
+    }
+  };
+
+  // Função para ocultar a animação de exclusão
+  const hideDeleteAnimation = () => {
+    setShowDeleteAnimation(false);
   };
 
   return (
     <View style={styles.container}>
-      <Text variant="titleLarge" style={{ ...styles.title, color: '#000000' }}>
-        {acaoTipo === 'editar' ? 'Editando' : 'Adicionar Veterinário'}
-      </Text>
+      <FlatList
+        data={veterinarios}
+        keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
+        renderItem={({ item }) => (
+          <Card style={styles.card}>
+            <Card.Content>
+              <Text style={styles.cardTitle}>{item.nome}</Text>
+              <Text>{`Horário: ${item.horario}`}</Text>
+              <Text>{`Telefone: ${item.telefone}`}</Text>
+            </Card.Content>
 
-      <Formik
-        initialValues={formData}
-        validationSchema={validationSchema}
-        onSubmit={(values) => salvar(values)}
-        enableReinitialize={true}
-      >
-        {({ handleChange, handleBlur, handleSubmit, touched, errors, values }) => (
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              mode="outlined"
-              label="Nome do Veterinário"
-              value={values.nome}
-              onChangeText={handleChange('nome')}
-              onBlur={handleBlur('nome')}
-              error={touched.nome && errors.nome}
-            />
-
-            {/* Utiliza TextInputMask para aplicar a máscara de horário */}
-            <TextInputMask
-              style={styles.input}
-              type={'datetime'}
-              options={{
-                format: 'HH:mm',
-              }}
-              value={values.horario}
-              onChangeText={handleChange('horario')}
-              onBlur={handleBlur('horario')}
-              keyboardType="numeric"
-              customTextInput={TextInput}
-              customTextInputProps={{ mode: 'outlined', label: 'Horário de Atendimento' }}
-              error={touched.horario && errors.horario}
-            />
-
-            <TextInput
-              style={styles.input}
-              mode="outlined"
-              label="Telefone"
-              value={values.telefone}
-              onChangeText={handleChange('telefone')}
-              onBlur={handleBlur('telefone')}
-              keyboardType="phone-pad"
-              error={touched.telefone && errors.telefone}
-            />
-
-            {/* Checkbox para seleção de serviços */}
-            <View style={styles.input}>
-              <Text>Serviços</Text>
-              {['Vacinação', 'Castração', 'Consulta', 'Outros'].map((service, index) => (
-                <View key={index} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Checkbox
-                    status={selectedServices.includes(service) ? 'checked' : 'unchecked'}
-                    onPress={() => {
-                      const services = [...selectedServices];
-                      if (services.includes(service)) {
-                        services.splice(services.indexOf(service), 1);
-                      } else {
-                        services.push(service);
-                      }
-                      setSelectedServices(services);
-                    }}
-                  />
-                  <Text>{service}</Text>
-                </View>
-              ))}
-            </View>
-
-            <View style={styles.buttonContainer}>
-              <Button
-                icon={({ color }) => (
-                  <Icon name="arrow-back" size={20} color={color} style={{ marginRight: 5 }} />
-                )}
-                onPress={() => navigation.goBack()}
-                mode="contained"
-                style={{ ...styles.button, backgroundColor: '#5fa0c8' }}
-              >
-                Voltar
-              </Button>
-
-              <View style={{ width: 20 }} />
-
-              <Button
-                style={{ ...styles.button, backgroundColor: '#008000' }}
-                mode="contained"
-                onPress={handleSubmit}
-                icon={({ color }) => (
-                  <Icon name="save" size={20} color={color} style={{ marginRight: 5 }} />
-                )}
-              >
-                Salvar
-              </Button>
-            </View>
-          </View>
+            <Card.Actions>
+              <IconButton
+                icon="pencil"
+                onPress={() =>
+                  navigation.navigate('FormVeterinario', {
+                    acaoTipo: 'editar',
+                    veterinario: item,
+                    onVeterinarioUpdated: loadVeterinarios,
+                  })
+                }
+              />
+              <IconButton
+                icon={() => <Icon name="delete" size={24} color="#FF0000" />}
+                onPress={() => excluirVeterinario(item)}
+              />
+            </Card.Actions>
+          </Card>
         )}
-      </Formik>
+      />
+
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        color="#FFFFFF"
+        onPress={() =>
+          navigation.navigate('FormVeterinario', {
+            acaoTipo: 'adicionar',
+            onVeterinarioUpdated: loadVeterinarios,
+          })
+        }
+      />
+
+      {/* Componente animação de exclusão */}
+      {showDeleteAnimation && <AnimatedDelete onDelete={hideDeleteAnimation} />}
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#e1e2fe',
   },
-  title: {
-    fontWeight: 'bold',
+  card: {
     margin: 10,
-    color: '#FFFFFF',
+    width: 300,
   },
-  inputContainer: {
-    width: '80%',
-    flex: 1,
+  cardTitle: {
+    fontWeight: 'bold',
+    fontSize: 20,
   },
-  input: {
-    marginVertical: 5,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  button: {
-    flex: 1,
-    marginVertical: 25,
-    flexDirection: 'row',
-    alignItems: 'center',
+  fab: {
+    position: 'absolute',
+    margin: 3,
+    left: 0,
+    top: 0,
+    backgroundColor: '#008000',
   },
 });
