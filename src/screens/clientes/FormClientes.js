@@ -1,4 +1,3 @@
-// Importa os módulos e bibliotecas necessárias para o componente
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';

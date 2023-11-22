@@ -1,4 +1,3 @@
-// Importa os módulos e bibliotecas necessárias para o componente
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, Image } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
@@ -8,7 +7,6 @@ import * as Yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { TextInputMask } from 'react-native-masked-text';
 
 // Define o componente principal
 export default function FormAdocao({ navigation, route }) {
