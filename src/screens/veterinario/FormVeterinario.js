@@ -35,8 +35,12 @@ export default function FormVeterinario({ navigation, route }) {
   // Esquema de validação Yup para os campos do formulário
   const validationSchema = Yup.object().shape({
     nome: Yup.string().required('Campo obrigatório!'),
-    horario: Yup.string().required('Campo obrigatório!'),
-    telefone: Yup.string().required('Campo obrigatório!'),
+    horario: Yup.string()
+      .required('Campo obrigatório!')
+      .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Formato de horário inválido'),
+    telefone: Yup.string()
+      .required('Campo obrigatório!')
+      .matches(/^\(\d{2}\) \d{4,5}-\d{4}$/, 'Formato de telefone inválido'),
   });
 
   const salvar = async (values) => {

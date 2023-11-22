@@ -37,7 +37,8 @@ export default function FormClientes({ navigation, route }) {
     nome: Yup.string().required('Campo obrigatório!'),
     nomePet: Yup.string().required('Campo obrigatório!'),
     cpf: Yup.string().required('Campo obrigatório!').matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido'),
-    telefone: Yup.string().required('Campo obrigatório!').matches(/^\(\d{2}\) \d{1,7}-\d{0,4}$/, 'Telefone inválido'),
+    telefone: Yup.string().required('Campo obrigatório!').matches(/^\(\d{2}\) \d{5}-\d{4,}$/,'Telefone inválido'),
+
     endereco: Yup.string().required('Campo obrigatório!'),
   });
 
@@ -143,7 +144,15 @@ export default function FormClientes({ navigation, route }) {
                     dddMask: '(99) ',
                   }}
                   value={values.telefone}
-                  onChangeText={handleChange('telefone')}
+                  onChangeText={(text) => {
+                    // Remova todos os caracteres não numéricos
+                    const numericValue = text.replace(/\D/g, '');
+
+                    // Valide se há pelo menos 9 dígitos
+                    if (numericValue.length >= 9) {
+                      handleChange('telefone')(text);
+                    }
+                  }}
                   onBlur={handleBlur('telefone')}
                   customTextInput={TextInput}
                   customTextInputProps={{ mode: 'outlined', label: 'Telefone' }}
